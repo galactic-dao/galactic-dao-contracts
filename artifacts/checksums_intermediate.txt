@@ -1,0 +1,1 @@
+97af9a86490ae5e12d2f0928e8a110ba57f5054e94c7da5160ef5ea6d2e584c7  target/wasm32-unknown-unknown/release/galacticdao_proposal_nft_voting.wasm
