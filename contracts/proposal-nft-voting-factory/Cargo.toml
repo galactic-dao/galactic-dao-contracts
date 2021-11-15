@@ -1,0 +1,28 @@
+[package]
+name = "galacticdao-proposal-nft-voting-factory"
+version = "0.1.0"
+authors = ["Frank Jia <jiafrank98@gmail.com>"]
+edition = "2018"
+
+[lib]
+crate-type = ["cdylib", "rlib"]
+
+[features]
+# for more explicit tests, cargo test --features=backtraces
+backtraces = ["cosmwasm-std/backtraces"]
+# use library feature to disable all instantiate/execute/query exports
+library = []
+
+[dependencies]
+cosmwasm-std = { version = "1.0.0-beta" }
+cosmwasm-storage = { version = "1.0.0-beta" }
+cw-storage-plus = "0.10"
+cw2 = "0.10"
+protobuf = { version = "2", features = ["with-bytes"] }
+schemars = "0.8.3"
+serde = { version = "1.0.127", default-features = false, features = ["derive"] }
+thiserror = { version = "1.0.26" }
+galacticdao-nft-voting-protocol = { version = "0.1.0", path = "../../packages/nft-voting-protocol" }
+
+[dev-dependencies]
+cosmwasm-schema = { version = "1.0.0-beta" }

@@ -31,13 +31,15 @@ pub struct ProposalConfig {
     pub options: Vec<ProposalOption>,
     /// The time at which the proposal closes
     pub close_time: u64,
+    /// Address that initiated the proposal
+    pub proposer: String,
 }
 
 #[derive(Serialize, Deserialize, Clone, Debug, PartialEq, JsonSchema)]
 pub struct ProposalState {
-    /// Owner of the proposal, i.e. the creator
-    pub owner: String,
-    /// Whether the proposal has been revoked by the owner
+    /// Address of the factory contract that created this proposal
+    pub creator: String,
+    /// Whether the proposal has been revoked by the proposer
     pub is_revoked: bool,
 }
 
@@ -79,6 +81,8 @@ pub enum ProposalExecuteMsg {
         option_id: Option<u16>,
         token_id: String,
     },
+    /// Revokes the proposal, can only be called by the proposer
+    Revoke {},
 }
 
 #[derive(Serialize, Deserialize, Clone, Debug, PartialEq, JsonSchema)]

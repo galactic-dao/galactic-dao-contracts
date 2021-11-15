@@ -1,6 +1,7 @@
 [workspace]
 members = [
   "contracts/proposal-nft-voting",
+  "contracts/proposal-nft-voting-factory",
   "packages/nft-voting-protocol"
 ]
 

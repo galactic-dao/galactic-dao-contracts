@@ -1,6 +1,6 @@
 #[cfg(not(feature = "library"))]
 use cosmwasm_std::entry_point;
-use cosmwasm_std::{to_binary, Binary, Deps, DepsMut, Env, MessageInfo, Response, StdResult};
+use cosmwasm_std::{attr, to_binary, Binary, Deps, DepsMut, Env, MessageInfo, Response, StdResult};
 use cw2::set_contract_version;
 use cw_storage_plus::U16Key;
 
@@ -30,7 +30,7 @@ pub fn instantiate(
     STATE.save(
         deps.storage,
         &ProposalState {
-            owner: info.sender.to_string(),
+            creator: info.sender.to_string(),
             is_revoked: false,
         },
     )?;
@@ -55,6 +55,7 @@ pub fn execute(
             option_id,
             token_id,
         } => execute_vote(deps, env, info, option_id, &token_id),
+        ProposalExecuteMsg::Revoke {} => execute_revoke(deps, env, info),
     }
 }
 
@@ -74,7 +75,7 @@ pub fn execute_vote(
     }
 
     // Check owner
-    let token_owner = query_token_owner(&deps.querier, cfg.nft_contract, token_id.to_string())?;
+    let token_owner = query_token_owner(&deps.querier, &cfg.nft_contract, token_id)?;
     if token_owner.as_str() != info.sender.as_str() {
         return Err(ContractError::Unauthorized {});
     }
@@ -100,7 +101,36 @@ pub fn execute_vote(
         VOTE_BY_TOKEN_ID.save(deps.storage, token_id.to_string(), &new_option_id)?;
     }
 
-    Ok(Response::new())
+    Ok(Response::new().add_attributes(vec![
+        attr("action", "proposal_vote"),
+        attr("token_id", token_id),
+        attr(
+            "option_id",
+            if option_id.is_some() {
+                option_id.unwrap().to_string()
+            } else {
+                "".to_string()
+            },
+        ),
+    ]))
+}
+
+pub fn execute_revoke(
+    deps: DepsMut,
+    _env: Env,
+    info: MessageInfo,
+) -> Result<Response, ContractError> {
+    let cfg = CONFIG.load(deps.storage)?;
+
+    if info.sender.as_str() != cfg.proposer.as_str() {
+        return Err(ContractError::Unauthorized {});
+    }
+
+    let mut state = STATE.load(deps.storage)?;
+    state.is_revoked = true;
+    STATE.save(deps.storage, &state)?;
+
+    Ok(Response::new().add_attribute("action", "revoke_proposal"))
 }
 
 #[cfg_attr(not(feature = "library"), entry_point)]
@@ -155,7 +185,8 @@ mod tests {
 
         let nft_contract = "contract";
         let proposal_uri = "proposal_uri";
-        let owner = "owner";
+        let creator = "creator";
+        let proposer = "proposer";
         let options = vec![
             ProposalOption {
                 id: 0,
@@ -172,6 +203,7 @@ mod tests {
             config: ProposalConfig {
                 nft_contract: nft_contract.to_string(),
                 proposal_uri: proposal_uri.to_string(),
+                proposer: proposer.to_string(),
                 options: options.clone(),
                 close_time: 100,
             },
@@ -182,12 +214,13 @@ mod tests {
         // Ensure expected initial state
         let expected = ProposalStatusResponse {
             state: ProposalState {
-                owner: owner.to_string(),
+                creator: creator.to_string(),
                 is_revoked: false,
             },
             config: ProposalConfig {
                 nft_contract: nft_contract.to_string(),
                 proposal_uri: proposal_uri.to_string(),
+                proposer: proposer.to_string(),
                 options: options.clone(),
                 close_time: 100,
             },
