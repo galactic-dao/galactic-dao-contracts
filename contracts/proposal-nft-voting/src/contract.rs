@@ -1,7 +1,6 @@
-#[cfg(not(feature = "library"))]
-use cosmwasm_std::entry_point;
-use cosmwasm_std::{attr, to_binary, Binary, Deps, DepsMut, Env, MessageInfo, Response, StdResult};
-use cw2::set_contract_version;
+use cosmwasm_std::{
+    attr, entry_point, to_binary, Binary, Deps, DepsMut, Env, MessageInfo, Response, StdResult,
+};
 use cw_storage_plus::U16Key;
 
 use galacticdao_nft_voting_protocol::cw721_querier::query_token_owner;
@@ -13,10 +12,6 @@ use galacticdao_nft_voting_protocol::proposal::{
 use crate::error::ContractError;
 use crate::state::{CONFIG, STATE, TALLY, VOTE_BY_TOKEN_ID};
 
-// version info for migration info
-const CONTRACT_NAME: &str = "crates.io:galacticdao-proposal-nft-voting";
-const CONTRACT_VERSION: &str = env!("CARGO_PKG_VERSION");
-
 #[cfg_attr(not(feature = "library"), entry_point)]
 pub fn instantiate(
     deps: DepsMut,
@@ -24,8 +19,6 @@ pub fn instantiate(
     info: MessageInfo,
     msg: ProposalInstantiateMsg,
 ) -> Result<Response, ContractError> {
-    set_contract_version(deps.storage, CONTRACT_NAME, CONTRACT_VERSION)?;
-
     CONFIG.save(deps.storage, &msg.config)?;
     STATE.save(
         deps.storage,

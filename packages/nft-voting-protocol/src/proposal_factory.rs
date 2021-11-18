@@ -30,8 +30,8 @@ Responses
 
 #[derive(Serialize, Deserialize, Clone, Debug, PartialEq, JsonSchema)]
 pub struct ProposalFactoryStatusResponse {
-    /// Owner of the factory
-    pub owner: String,
+    /// Current state
+    pub state: ProposalFactoryState,
     /// Current factory config
     pub config: ProposalFactoryConfig,
 }

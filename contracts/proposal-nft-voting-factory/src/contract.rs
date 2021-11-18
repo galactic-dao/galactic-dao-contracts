@@ -1,10 +1,7 @@
-#[cfg(not(feature = "library"))]
-use cosmwasm_std::entry_point;
 use cosmwasm_std::{
-    attr, to_binary, BankMsg, Binary, Coin, CosmosMsg, Deps, DepsMut, Env, MessageInfo, Reply,
-    ReplyOn, Response, StdError, StdResult, SubMsg, Uint128, WasmMsg,
+    attr, entry_point, to_binary, BankMsg, Binary, Coin, CosmosMsg, Deps, DepsMut, Env,
+    MessageInfo, Reply, ReplyOn, Response, StdError, StdResult, SubMsg, Uint128, WasmMsg,
 };
-use cw2::set_contract_version;
 use protobuf::Message;
 
 use galacticdao_nft_voting_protocol::cw721_querier::query_has_tokens;
@@ -20,10 +17,6 @@ use crate::error::ContractError;
 use crate::response::MsgInstantiateContractResponse;
 use crate::state::{CONFIG, STATE};
 
-// version info for migration info
-const CONTRACT_NAME: &str = "crates.io:galacticdao-proposal-nft-voting-factory";
-const CONTRACT_VERSION: &str = env!("CARGO_PKG_VERSION");
-
 #[cfg_attr(not(feature = "library"), entry_point)]
 pub fn instantiate(
     deps: DepsMut,
@@ -31,8 +24,6 @@ pub fn instantiate(
     info: MessageInfo,
     msg: ProposalFactoryInstantiateMsg,
 ) -> Result<Response, ContractError> {
-    set_contract_version(deps.storage, CONTRACT_NAME, CONTRACT_VERSION)?;
-
     CONFIG.save(deps.storage, &msg.config)?;
     STATE.save(
         deps.storage,
@@ -44,7 +35,6 @@ pub fn instantiate(
     Ok(Response::new())
 }
 
-// TODO: Replies on creation, add attributes, queries
 #[cfg_attr(not(feature = "library"), entry_point)]
 pub fn reply(_deps: DepsMut, _env: Env, msg: Reply) -> StdResult<Response> {
     let res: MsgInstantiateContractResponse =
@@ -171,7 +161,7 @@ pub fn query_status(deps: Deps) -> StdResult<ProposalFactoryStatusResponse> {
     let state = STATE.load(deps.storage)?;
 
     Ok(ProposalFactoryStatusResponse {
-        owner: state.owner.clone(),
+        state: state.clone(),
         config: cfg.clone(),
     })
 }

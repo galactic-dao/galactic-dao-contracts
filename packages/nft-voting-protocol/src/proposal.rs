@@ -29,7 +29,7 @@ pub struct ProposalConfig {
     pub proposal_uri: String,
     /// The allowed options for voting
     pub options: Vec<ProposalOption>,
-    /// The time at which the proposal closes
+    /// The time at which the proposal closes, in seconds
     pub close_time: u64,
     /// Address that initiated the proposal
     pub proposer: String,
@@ -76,7 +76,7 @@ pub struct ProposalInstantiateMsg {
 #[derive(Serialize, Deserialize, Clone, Debug, PartialEq, JsonSchema)]
 #[serde(rename_all = "snake_case")]
 pub enum ProposalExecuteMsg {
-    /// Casts a vote with the given token ID, if null, indicates a no-vote
+    /// Casts a vote with the given token ID, if null, indicates a no-vote, revoking any existing votes
     Vote {
         option_id: Option<u16>,
         token_id: String,
