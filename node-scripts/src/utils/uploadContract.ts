@@ -1,5 +1,8 @@
-import { isTxError, MsgStoreCode, Wallet } from "@terra-money/terra.js";
-import * as fs from "fs";
+import { isTxError, MsgStoreCode, Wallet } from '@terra-money/terra.js';
+import * as fs from 'fs';
+import { getLogger } from '../common/logger';
+
+const logger = getLogger('uploadContract');
 
 /*
 Uploads a given contract and returns the code_id of the contract
@@ -17,7 +20,7 @@ const uploadContract = async (
   });
   const storeCodeTxResult = await wallet.lcd.tx.broadcast(storeCodeTx);
 
-  console.log('Code uploaded', storeCodeTxResult);
+  logger.debug('Code uploaded', storeCodeTxResult);
 
   if (isTxError(storeCodeTxResult)) {
     throw new Error(

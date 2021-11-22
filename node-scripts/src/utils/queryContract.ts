@@ -1,4 +1,7 @@
 import { LCDClient } from '@terra-money/terra.js';
+import { getLogger } from '../common/logger';
+
+const logger = getLogger('queryContract');
 
 export type QueryContractVariables = {
   contractAddress: string;
@@ -10,7 +13,7 @@ const queryContract = async <T>({
   queryMessage,
   lcdClient,
 }: QueryContractVariables): Promise<T> => {
-  console.log('Query contract with params', {
+  logger.debug('Query contract with params', {
     contractAddress,
     queryMessage,
   });
@@ -20,7 +23,7 @@ const queryContract = async <T>({
     queryMessage
   );
 
-  console.log('Query complete with result', result);
+  logger.debug('Query complete with result', result);
 
   return result as T;
 };

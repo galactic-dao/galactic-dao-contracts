@@ -4,6 +4,7 @@ import {
   Wallet,
 } from '@terra-money/terra.js';
 import { Coins } from '@terra-money/terra.js/dist/core/Coins';
+import { getLogger } from '../common/logger';
 
 export type InstantiateContractVariables = {
   contractCodeId: number;
@@ -11,6 +12,8 @@ export type InstantiateContractVariables = {
   wallet: Wallet;
   initCoins?: Coins.Input;
 };
+
+const logger = getLogger('instantiateContract');
 
 /*
 Instantiates a contract with a given code ID, init message, and init coins
@@ -34,7 +37,7 @@ const instantiateContract = async ({
   });
   const instantiateTxResult = await wallet.lcd.tx.broadcast(instantiateTx);
 
-  console.log('Instantiated contract', instantiateTxResult);
+  logger.debug('Instantiated contract', instantiateTxResult);
 
   if (isTxError(instantiateTxResult)) {
     throw new Error(

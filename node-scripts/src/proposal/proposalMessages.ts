@@ -22,7 +22,7 @@ export function getProposalFactoryModifyConfigMsg(
 /*
 Query
  */
-export function getProposalFactoryQueryMsg() {
+export function getProposalFactoryQueryStatusMsg() {
   return {
     status: {},
   };

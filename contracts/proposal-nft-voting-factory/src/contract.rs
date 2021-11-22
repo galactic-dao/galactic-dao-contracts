@@ -79,11 +79,24 @@ pub fn execute_create_proposal(
     options: &Vec<ProposalOption>,
     close_time: u64,
 ) -> Result<Response, ContractError> {
+    let state = STATE.load(deps.storage)?;
     let cfg = CONFIG.load(deps.storage)?;
 
-    // Only allow people with an NFT to create a contract
-    if !query_has_tokens(&deps.querier, &cfg.nft_contract, &info.sender.to_string())? {
-        return Err(ContractError::Unauthorized {});
+    // Conduct checks if not owner
+    if state.owner.as_str() != info.sender.as_str() {
+        // Only allow people with an NFT to create a contract
+        if !query_has_tokens(&deps.querier, &cfg.nft_contract, &info.sender.to_string())? {
+            return Err(ContractError::Unauthorized {});
+        }
+
+        // Check that sufficient funds are sent
+        let sent_uluna = info
+            .funds
+            .iter()
+            .find(|coin| coin.denom.as_str() == "uluna");
+        if sent_uluna.is_none() || sent_uluna.unwrap().amount < cfg.proposal_cost {
+            return Err(ContractError::InsufficientFunds {});
+        }
     }
 
     let instantiate_proposal_msg = ProposalInstantiateMsg {
@@ -117,7 +130,7 @@ pub fn execute_modify_config(
     deps: DepsMut,
     _env: Env,
     info: MessageInfo,
-    proposal_cost: Option<u64>,
+    proposal_cost: Option<Uint128>,
     proposal_code_id: Option<u64>,
 ) -> Result<Response, ContractError> {
     let state = STATE.load(deps.storage)?;

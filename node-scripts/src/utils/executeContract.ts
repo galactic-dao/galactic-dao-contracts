@@ -1,6 +1,7 @@
 import { Coins } from '@terra-money/terra.js/dist/core/Coins';
 import { isTxError, MsgExecuteContract, Wallet } from '@terra-money/terra.js';
 import { BlockTxBroadcastResult } from '@terra-money/terra.js/dist/client/lcd/api/TxAPI';
+import { getLogger } from '../common/logger';
 
 export type ExecuteContractOperation = {
   message: Record<string, any>;
@@ -12,6 +13,8 @@ export type ExecuteContractVariables = {
   wallet: Wallet;
 };
 
+const logger = getLogger('executeContract');
+
 /*
 Execute the contract with given messages. Execution happens in ALL or NOTHING
 fashion - so if one message fails, the entire txn is rolled back.
@@ -21,7 +24,7 @@ const executeContract = async ({
   operations,
   wallet,
 }: ExecuteContractVariables): Promise<BlockTxBroadcastResult> => {
-  console.log(
+  logger.debug(
     'Execute contract with params',
     JSON.stringify({
       contractAddress: contractAddress,
@@ -50,7 +53,7 @@ const executeContract = async ({
     );
   }
 
-  console.log('Transaction executed with result', executeTxResult.logs[0]);
+  logger.debug('Transaction executed with result', executeTxResult.logs[0]);
 
   return executeTxResult;
 };

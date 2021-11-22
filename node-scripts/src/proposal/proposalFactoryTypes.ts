@@ -1,13 +1,12 @@
+import { ProposalOption } from "./proposalTypes";
+
 /*
 Models
  */
-
-import { ProposalOption } from "./proposalTypes";
-
 export type ProposalFactoryConfig = {
   nft_contract: string;
   proposal_cost: string;
-  proposal_code_id: string;
+  proposal_code_id: number;
 };
 
 export type ProposalFactoryState = {
@@ -37,7 +36,7 @@ export type ProposalFactoryInstantiateMessage = {
 export type ProposalFactoryExecuteCreateMessage = {
   proposal_uri: String;
   options: ProposalOption[];
-  close_time: string;
+  close_time: number;
 };
 
 export type ProposalFactoryExecuteModifyConfigMessage = {

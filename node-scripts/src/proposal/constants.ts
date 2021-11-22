@@ -8,6 +8,6 @@ export const nftProposalCodeIds: ChainTypeDependent<number> = {
 
 export const nftProposalFactoryCodeIds: ChainTypeDependent<number> = {
   LOCAL: -1,
-  TESTNET: 20369,
+  TESTNET: 21185,
   MAINNET: -1,
 };

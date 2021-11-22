@@ -13,7 +13,7 @@ pub struct ProposalFactoryConfig {
     /// The NFT contract associated with NFT voting
     pub nft_contract: String,
     /// Cost, in uluna, for creating a proposal
-    pub proposal_cost: u64,
+    pub proposal_cost: Uint128,
     /// Code ID of the proposal to instantiate
     pub proposal_code_id: u64,
 }
@@ -57,7 +57,7 @@ pub enum ProposalFactoryExecuteMsg {
     },
     /// Updates the configuration with any specified items
     ModifyConfig {
-        proposal_cost: Option<u64>,
+        proposal_cost: Option<Uint128>,
         proposal_code_id: Option<u64>,
     },
     /// Withdraws funds within the contract to the owner

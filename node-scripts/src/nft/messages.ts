@@ -22,3 +22,9 @@ export function getCw721TransferMsg(recipient: string, tokenId: string) {
 /*
 Query
  */
+
+export function getCw721NumTokensMsg() {
+  return {
+    num_tokens: {},
+  };
+}

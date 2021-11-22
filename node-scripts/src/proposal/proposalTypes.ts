@@ -3,6 +3,7 @@ Models
  */
 
 export type ProposalOption = {
+  // Unsigned u16
   id: number;
   name: string;
 };
