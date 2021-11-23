@@ -79,7 +79,7 @@ pub fn execute_vote(
         TALLY.update(
             deps.storage,
             U16Key::from(voted_option_id),
-            |curr_tally| -> StdResult<_> { Ok(curr_tally.unwrap() + 1) },
+            |curr_tally| -> StdResult<_> { Ok(curr_tally.unwrap() - 1) },
         )?;
         VOTE_BY_TOKEN_ID.remove(deps.storage, token_id.to_string());
     }
@@ -156,7 +156,11 @@ pub fn query_status(deps: Deps) -> StdResult<ProposalStatusResponse> {
 pub fn query_votes(deps: Deps, token_ids: Vec<String>) -> StdResult<VotesQueryResponse> {
     let votes: Vec<Option<u16>> = token_ids
         .iter()
-        .map(|id| VOTE_BY_TOKEN_ID.may_load(deps.storage, id.clone()).unwrap())
+        .map(|id| {
+            VOTE_BY_TOKEN_ID
+                .may_load(deps.storage, id.to_string())
+                .unwrap()
+        })
         .collect();
     Ok(VotesQueryResponse { votes })
 }
@@ -174,7 +178,7 @@ mod tests {
 
     #[test]
     fn instantiate_and_query_status() {
-        let mut deps = mock_dependencies();
+        let mut deps = mock_dependencies(&[]);
 
         let nft_contract = "contract";
         let proposal_uri = "proposal_uri";
