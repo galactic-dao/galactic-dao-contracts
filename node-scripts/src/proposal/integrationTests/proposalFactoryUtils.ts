@@ -3,12 +3,17 @@ import instantiateContract from "../../utils/instantiateContract";
 import executeContract from "../../utils/executeContract";
 import {
   ProposalFactoryExecuteCreateMessage,
+  ProposalFactoryExecuteModifyConfigMessage,
   ProposalFactoryInstantiateMessage,
   ProposalFactoryStatusResponse
 } from "../proposalFactoryTypes";
 import { nftProposalCodeIds, nftProposalFactoryCodeIds } from "../constants";
 import { TEST_PROPOSAL_COST } from "./constants";
-import { getProposalFactoryExecuteCreateMsg, getProposalFactoryQueryStatusMsg } from "../proposalMessages";
+import {
+  getProposalFactoryExecuteCreateMsg,
+  getProposalFactoryModifyConfigMsg,
+  getProposalFactoryQueryStatusMsg
+} from "../proposalFactoryMessages";
 import queryContract from "../../utils/queryContract";
 import { Coins } from "@terra-money/terra.js/dist/core/Coins";
 import {
@@ -20,8 +25,9 @@ import {
 import {
   getProposalExecuteVoteMsg,
   getProposalQueryStatusMsg,
-  getProposalQueryVotesMsg
-} from "../proposalFactoryMessages";
+  getProposalQueryVotesMsg,
+  getProposalRevokeMsg
+} from "../proposalMessages";
 import { BlockTxBroadcastResult } from "@terra-money/terra.js/dist/client/lcd/api/TxAPI";
 
 // TODO: These need cleanup
@@ -63,6 +69,22 @@ export async function createTestProposal(
       {
         message: getProposalFactoryExecuteCreateMsg(params),
         coins,
+      },
+    ],
+  });
+}
+
+export async function executeModifyProposalFactoryConfig(
+  proposalFactoryContract: string,
+  wallet: Wallet,
+  params: ProposalFactoryExecuteModifyConfigMessage
+): Promise<BlockTxBroadcastResult> {
+  return executeContract({
+    contractAddress: proposalFactoryContract,
+    wallet,
+    operations: [
+      {
+        message: getProposalFactoryModifyConfigMsg(params),
       },
     ],
   });
@@ -125,6 +147,25 @@ export async function executeVoteOnProposal(
     operations: [
       {
         message: getProposalExecuteVoteMsg(params),
+        coins: [],
+      },
+    ],
+  });
+}
+
+/**
+ * Executes a revoke command on the proposal, must be the proposer to do so
+ */
+export async function executeRevokeOnProposal(
+  proposalContract: string,
+  wallet: Wallet
+): Promise<BlockTxBroadcastResult> {
+  return executeContract({
+    contractAddress: proposalContract,
+    wallet,
+    operations: [
+      {
+        message: getProposalRevokeMsg(),
         coins: [],
       },
     ],

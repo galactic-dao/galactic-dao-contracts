@@ -1,29 +1,31 @@
-import { ProposalFactoryExecuteCreateMessage, ProposalFactoryExecuteModifyConfigMessage } from "./proposalFactoryTypes";
+import { ProposalExecuteVoteMessage, ProposalQueryVotesMessage } from "./proposalTypes";
 
 /*
 Execute
  */
-export function getProposalFactoryExecuteCreateMsg(
-  params: ProposalFactoryExecuteCreateMessage
-) {
+export function getProposalExecuteVoteMsg(params: ProposalExecuteVoteMessage) {
   return {
-    create_proposal: params,
+    vote: params,
   };
 }
 
-export function getProposalFactoryModifyConfigMsg(
-  params: ProposalFactoryExecuteModifyConfigMessage
-) {
+export function getProposalRevokeMsg() {
   return {
-    modify_config: params,
+    revoke: {},
   };
 }
 
 /*
 Query
  */
-export function getProposalFactoryQueryStatusMsg() {
+export function getProposalQueryStatusMsg() {
   return {
     status: {},
+  };
+}
+
+export function getProposalQueryVotesMsg(params: ProposalQueryVotesMessage) {
+  return {
+    votes: params,
   };
 }
