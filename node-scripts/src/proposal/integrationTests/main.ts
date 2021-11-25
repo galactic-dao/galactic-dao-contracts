@@ -1,23 +1,30 @@
-import { createTestNft, mintNfts } from './nftUtils';
+import {
+  createTestNft,
+  createTestProposalFactory,
+  mintTestNfts,
+} from './testUtils';
 import {
   testWallet1,
   testWallet2,
   testWallet3,
 } from '../../common/testingShims';
-import {
-  createTestProposal,
-  createTestProposalFactory,
-  executeModifyProposalFactoryConfig,
-  executeRevokeOnProposal,
-  executeVoteOnProposal,
-  queryProposalFactoryStatus,
-  queryProposalStatus,
-  queryProposalVotes,
-} from './proposalFactoryUtils';
 import { convertAmountToMicroDenom, delay } from '../../utils/misc';
 import { ProposalOption } from '../proposalTypes';
 import { Coins } from '@terra-money/terra.js/dist/core/Coins';
-import { getCreatedProposalAddress } from '../proposalFactoryUtils';
+import { getCreatedProposalAddress } from '../utils';
+import {
+  executeCreateProposal,
+  executeModifyProposalFactoryConfig,
+  executeWithdrawFundsFromProposalFactory,
+  queryProposalFactoryStatus,
+} from '../proposalFactory';
+import {
+  executeRevokeOnProposal,
+  executeVoteOnProposal,
+  queryProposalStatus,
+  queryProposalVotes,
+} from '../proposal';
+import { Numeric } from '@terra-money/terra.js';
 
 function getSecondsSinceEpoch(): number {
   return Math.round(Date.now() / 1000);
@@ -33,11 +40,13 @@ async function main() {
   await delay(5);
 
   // Mint to a test wallet
-  const initialMintTx = await mintNfts(testWallet1, nftContractAddr, {
+  const initialMintTx = await mintTestNfts(testWallet1, nftContractAddr, {
     [testWallet2.key.accAddress]: 2,
     [testWallet1.key.accAddress]: 2,
   });
   console.log('Minted test NFTs', initialMintTx.txhash);
+
+  await delay(5);
 
   // Deploy proposal factory
   const proposalFactoryAddr = await createTestProposalFactory(
@@ -71,9 +80,9 @@ async function main() {
       name: 'Option 2',
     },
   ];
-  const proposalLunaCost = 0.1;
+  const proposalLunaCost = 1;
 
-  const proposalCreationTx = await createTestProposal(
+  const proposalCreationTx = await executeCreateProposal(
     testWallet2,
     proposalFactoryAddr,
     new Coins({
@@ -90,6 +99,39 @@ async function main() {
   console.log('Created test proposal with address', testProposalAddr);
 
   await delay(5);
+
+  // Test withdrawing funds from creation
+  const [prevTestWalletCoins] = await testWallet1.lcd.bank.balance(
+    testWallet1.key.accAddress
+  );
+  const prevTestWalletUluna = prevTestWalletCoins.get('uluna')!;
+  await executeWithdrawFundsFromProposalFactory(
+    proposalFactoryAddr,
+    testWallet1,
+    {
+      amount_uluna: convertAmountToMicroDenom(proposalLunaCost),
+    }
+  );
+
+  await delay(5);
+
+  const [newTestWalletCoins] = await testWallet1.lcd.bank.balance(
+    testWallet1.key.accAddress
+  );
+  const newTestWalletUluna = newTestWalletCoins.get('uluna')!;
+
+  if (
+    newTestWalletUluna.amount
+      .sub(prevTestWalletUluna.amount)
+      .sub(Numeric.parse(convertAmountToMicroDenom(proposalLunaCost)).mul(0.95))
+      .lt(0)
+  ) {
+    throw Error(
+      `Did not successfully withdraw. New balance: ${newTestWalletUluna.amount} | prev balance: ${prevTestWalletUluna.amount}`
+    );
+  }
+
+  // Now test the proposal status
 
   let proposalStatus = await queryProposalStatus(
     testProposalAddr,
@@ -263,7 +305,7 @@ async function main() {
 
   // Try creating a proposal from non-GP owner
   try {
-    await createTestProposal(
+    await executeCreateProposal(
       testWallet3,
       proposalFactoryAddr,
       new Coins({
@@ -281,7 +323,7 @@ async function main() {
   }
 
   // Create another proposal to test revoke
-  const proposalCreationTx2 = await createTestProposal(
+  const proposalCreationTx2 = await executeCreateProposal(
     testWallet2,
     proposalFactoryAddr,
     new Coins({

@@ -1,4 +1,8 @@
-import { ProposalFactoryExecuteCreateMessage, ProposalFactoryExecuteModifyConfigMessage } from "./proposalFactoryTypes";
+import {
+  ProposalFactoryExecuteCreateMessage,
+  ProposalFactoryExecuteModifyConfigMessage,
+  ProposalFactoryExecuteWithdrawMessage
+} from "./proposalFactoryTypes";
 
 /*
 Execute
@@ -16,6 +20,14 @@ export function getProposalFactoryModifyConfigMsg(
 ) {
   return {
     modify_config: params,
+  };
+}
+
+export function getProposalFactoryWithdrawMsg(
+  params: ProposalFactoryExecuteWithdrawMessage
+) {
+  return {
+    withdraw_funds: params,
   };
 }
 

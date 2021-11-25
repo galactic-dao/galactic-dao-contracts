@@ -1,7 +1,6 @@
 /*
 Models
  */
-
 export type ProposalOption = {
   // Unsigned u16
   id: number;
@@ -44,10 +43,6 @@ export type ProposalVotesResponse = {
 /*
 Messages
  */
-export type ProposalInstantiateMessage = {
-  config: ProposalConfig;
-};
-
 export type ProposalExecuteVoteMessage = {
   option_id?: number;
   token_id: string;

@@ -6,6 +6,9 @@ import { getCw721MintMsg, getCw721NumTokensMsg } from "../../nft/messages";
 import executeContract, { ExecuteContractOperation } from "../../utils/executeContract";
 import { range } from "lodash";
 import { cw721NftCodeIds } from "../../nft/constants";
+import { ProposalFactoryInstantiateMessage } from "../proposalFactoryTypes";
+import { TEST_PROPOSAL_COST } from "./constants";
+import { nftProposalCodeIds, nftProposalFactoryCodeIds } from "../constants";
 
 /**
  * Creates a test NFT contract with no token balances
@@ -26,7 +29,7 @@ export async function createTestNft(wallet: Wallet): Promise<string> {
 /**
  * Mint certain NFTs to the given addresses with certain quantities
  */
-export async function mintNfts(
+export async function mintTestNfts(
   wallet: Wallet,
   testNftContract: string,
   addressToQty: Record<string, number>
@@ -62,5 +65,26 @@ export async function mintNfts(
     contractAddress: testNftContract,
     wallet,
     operations: contractOperations,
+  });
+}
+
+/**
+ * Creates a test proposal factory
+ */
+export async function createTestProposalFactory(
+  wallet: Wallet,
+  nftContract: string
+): Promise<string> {
+  const instantiateMsg: ProposalFactoryInstantiateMessage = {
+    config: {
+      nft_contract: nftContract,
+      proposal_cost: TEST_PROPOSAL_COST,
+      proposal_code_id: nftProposalCodeIds['TESTNET'],
+    },
+  };
+  return instantiateContract({
+    contractCodeId: nftProposalFactoryCodeIds['TESTNET'],
+    initMessage: instantiateMsg,
+    wallet,
   });
 }

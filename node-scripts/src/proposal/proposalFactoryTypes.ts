@@ -21,11 +21,6 @@ export type ProposalFactoryStatusResponse = {
   config: ProposalFactoryConfig;
 };
 
-export type VotesQueryResponse = {
-  // Voted option IDs in the same order as the token IDs provided in the query, undefined if no vote exists
-  votes: (number | undefined)[];
-};
-
 /*
 Messages
  */
