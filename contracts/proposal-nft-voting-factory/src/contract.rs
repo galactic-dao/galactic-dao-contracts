@@ -9,7 +9,7 @@ use galacticdao_nft_voting_protocol::proposal::{
     ProposalConfig, ProposalInstantiateMsg, ProposalOption,
 };
 use galacticdao_nft_voting_protocol::proposal_factory::{
-    ProposalFactoryExecuteMsg, ProposalFactoryInstantiateMsg, ProposalFactoryQueryMsg,
+    MigrateMsg, ProposalFactoryExecuteMsg, ProposalFactoryInstantiateMsg, ProposalFactoryQueryMsg,
     ProposalFactoryState, ProposalFactoryStatusResponse,
 };
 
@@ -177,4 +177,9 @@ pub fn query_status(deps: Deps) -> StdResult<ProposalFactoryStatusResponse> {
         state: state.clone(),
         config: cfg.clone(),
     })
+}
+
+#[cfg_attr(not(feature = "library"), entry_point)]
+pub fn migrate(_deps: DepsMut, _env: Env, _msg: MigrateMsg) -> StdResult<Response> {
+    Ok(Response::default())
 }

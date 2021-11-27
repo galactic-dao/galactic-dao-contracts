@@ -93,3 +93,6 @@ pub enum ProposalQueryMsg {
     /// Retrieves the current votes for the given token IDs
     Votes { token_ids: Vec<String> },
 }
+
+#[derive(Serialize, Deserialize, Clone, Debug, PartialEq, JsonSchema)]
+pub struct MigrateMsg {}

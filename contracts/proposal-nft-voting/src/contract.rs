@@ -5,7 +5,7 @@ use cw_storage_plus::U16Key;
 
 use galacticdao_nft_voting_protocol::cw721_querier::query_token_owner;
 use galacticdao_nft_voting_protocol::proposal::{
-    ProposalExecuteMsg, ProposalInstantiateMsg, ProposalOptionStatus, ProposalQueryMsg,
+    MigrateMsg, ProposalExecuteMsg, ProposalInstantiateMsg, ProposalOptionStatus, ProposalQueryMsg,
     ProposalState, ProposalStatusResponse, VotesQueryResponse,
 };
 
@@ -163,6 +163,11 @@ pub fn query_votes(deps: Deps, token_ids: Vec<String>) -> StdResult<VotesQueryRe
         })
         .collect();
     Ok(VotesQueryResponse { votes })
+}
+
+#[cfg_attr(not(feature = "library"), entry_point)]
+pub fn migrate(_deps: DepsMut, _env: Env, _msg: MigrateMsg) -> StdResult<Response> {
+    Ok(Response::default())
 }
 
 #[cfg(test)]

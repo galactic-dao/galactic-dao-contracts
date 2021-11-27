@@ -70,3 +70,6 @@ pub enum ProposalFactoryQueryMsg {
     /// Retrieves current status for the proposal factory
     Status {},
 }
+
+#[derive(Serialize, Deserialize, Clone, Debug, PartialEq, JsonSchema)]
+pub struct MigrateMsg {}
