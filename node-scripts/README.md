@@ -2,9 +2,13 @@
 
 Set of Node.js scripts to interact with the smart contracts.
 
-## 1 Setup
+## Local Setup
 
 The following environment variables are expected:
+> Given that some information in the .env is private (mnemonic phrase) and can give access to your funds if committed by mistake, it is recommended to use a test wallet with no funds on mainnet to avoid publishing private info by accident.
+
+<details>
+<summary>Create a .env file in this same folder and save the following content</summary>
 
 ```dotenv
 # One of TESTNET / MAINNET / LOCAL
@@ -49,14 +53,29 @@ TEST_1_WALLET_MNEMONIC="inherit myself term crystal grain butter lyrics inhale s
 # Galaxy Labs Test 2: terra1ktd2esx85k4k7vf5n82py2k5m4ghaeukj04l2w
 TEST_2_WALLET_MNEMONIC="expose apple ugly sick robust throw large citizen oxygen theme coil material old scorpion scorpion truth ignore sure very opera tilt dwarf day treat"
 ```
+</details>
 
-## Heroku
+### Node installation and run
 
-Heroku is used only to run a minting script during a distribution.
+```bash
+> cd /path/to/galactic-dao-contracts/node-scripts/
+> npm install
+> npm run integration-test/full
+...
+Error: wallet env var not defined
+```
+
+That's normal! Now you can write a non-empty mnemonic phrase in your `.env` file, and that phrase can be anything. I was very secure and chose:
+```dotenv
+WALLET_MNEMONIC="abc"
+```
+## Deployment
+
+**Heroku** is used only to run a minting script during a distribution.
 
 ### Useful Commands
 
-**Deploy:**
+#### Deploy
 
 ```shell
 git subtree push --prefix node-scripts heroku main
@@ -67,13 +86,13 @@ heroku ps:scale web=0
 heroku ps:scale mint=1
 ```
 
-**View Logs:**
+#### View Logs
 
 ```shell
 heroku logs --dyno=mint --tail
 ```
 
-**Env Vars:**
+#### Change Env Vars
 
 Install [heroku-config](https://github.com/xavdid/heroku-config) to easily set env vars from a file.
 
