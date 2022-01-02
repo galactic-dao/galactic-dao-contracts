@@ -183,6 +183,18 @@ dependencies = [
 ]
 
 [[package]]
+name = "cw20"
+version = "0.9.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "ac49b013ca1e355fd988cc1926acc9a16d7fd45cfb595ee330455582a788b100"
+dependencies = [
+ "cosmwasm-std",
+ "cw0",
+ "schemars",
+ "serde",
+]
+
+[[package]]
 name = "cw721"
 version = "0.9.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -268,6 +280,36 @@ checksum = "d0f40b2dcd8bc322217a5f6559ae5f9e9d1de202a2ecee2e9eafcbece7562a4f"
 dependencies = [
  "rand_core 0.6.3",
  "subtle",
+]
+
+[[package]]
+name = "galacticdao-nft-staking"
+version = "0.1.0"
+dependencies = [
+ "cosmwasm-schema 0.16.2",
+ "cosmwasm-std",
+ "cosmwasm-storage",
+ "cw-storage-plus",
+ "galacticdao-nft-staking-protocol",
+ "protobuf",
+ "schemars",
+ "serde",
+ "thiserror",
+]
+
+[[package]]
+name = "galacticdao-nft-staking-protocol"
+version = "0.1.0"
+dependencies = [
+ "cosmwasm-schema 0.16.2",
+ "cosmwasm-std",
+ "cosmwasm-storage",
+ "cw-storage-plus",
+ "cw20",
+ "cw721",
+ "schemars",
+ "serde",
+ "thiserror",
 ]
 
 [[package]]
