@@ -8,4 +8,13 @@ pub enum ContractError {
 
     #[error("Unauthorized")]
     Unauthorized {},
+
+    #[error("Invalid Token")]
+    InvalidToken {},
+
+    #[error("Invalid NFT")]
+    InvalidNft {},
+
+    #[error("Cannot Withdraw - In Lockup")]
+    CannotWithdrawLockup {},
 }
