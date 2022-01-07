@@ -55,14 +55,14 @@ pub fn execute(
         StakingExecuteMsg::ChangeConfig {
             whitelisted_tokens,
             trusted_token_sender,
-            staking_reward_timeout,
+            reward_withdrawal_timeout,
         } => execute_change_config(
             deps,
             env,
             info,
-            &whitelisted_tokens,
-            &trusted_token_sender,
-            &staking_reward_timeout,
+            whitelisted_tokens,
+            trusted_token_sender,
+            reward_withdrawal_timeout,
         ),
         StakingExecuteMsg::ReceiveNft(receive_msg) => {
             execute_receive_nft(deps, env, info, &receive_msg)

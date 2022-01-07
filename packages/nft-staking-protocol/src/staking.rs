@@ -81,7 +81,7 @@ pub enum StakingExecuteMsg {
     ChangeConfig {
         whitelisted_tokens: Option<Vec<String>>,
         trusted_token_sender: Option<String>,
-        staking_reward_timeout: Option<u64>,
+        reward_withdrawal_timeout: Option<u64>,
     },
     /// Receive an NFT to begin the staking process, with the NFT contract address
     /// encoded in info.sender

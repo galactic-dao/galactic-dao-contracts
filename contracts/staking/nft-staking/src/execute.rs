@@ -8,18 +8,38 @@ use cosmwasm_std::{
 };
 use cw20::{Cw20ExecuteMsg, Cw20ReceiveMsg};
 use cw721::{Cw721ExecuteMsg, Cw721ReceiveMsg};
-use galacticdao_nft_staking_protocol::staking::{StakedNft, TokenBalance, TokenDistribution};
+use galacticdao_nft_staking_protocol::staking::{
+    StakedNft, StakingConfig, TokenBalance, TokenDistribution,
+};
 
 /// Change current configuration for the staking contract
 pub fn execute_change_config(
     deps: DepsMut,
     env: Env,
     info: MessageInfo,
-    whitelisted_tokens: &Option<Vec<String>>,
-    trusted_token_sender: &Option<String>,
-    staking_reward_timeout: &Option<u64>,
+    whitelisted_tokens: Option<Vec<String>>,
+    trusted_token_sender: Option<String>,
+    reward_withdrawal_timeout: Option<u64>,
 ) -> Result<Response, ContractError> {
-    // TODO!
+    let cfg = CONFIG.load(deps.storage)?;
+
+    if info.sender != cfg.owner {
+        return Err(ContractError::Unauthorized {});
+    }
+
+    CONFIG.save(
+        deps.storage,
+        &StakingConfig {
+            whitelisted_tokens: whitelisted_tokens
+                .unwrap_or(cfg.whitelisted_tokens.clone())
+                .clone(),
+            trusted_token_sender: trusted_token_sender.unwrap_or(cfg.trusted_token_sender.clone()),
+            reward_withdrawal_timeout: reward_withdrawal_timeout
+                .unwrap_or(cfg.reward_withdrawal_timeout),
+            ..cfg
+        },
+    )?;
+
     Ok(Response::new())
 }
 
@@ -147,9 +167,8 @@ pub fn execute_withdraw_nft(
     let cfg = CONFIG.load(deps.storage)?;
     let stake = staked_nfts().load(deps.storage, token_id)?;
 
-    // Check sender - allow owner to send the NFT back in case we need to decommission the contract
-    let msg_sender = info.sender;
-    if stake.owner != msg_sender && cfg.owner != msg_sender {
+    // Check sender
+    if stake.owner != info.sender {
         return Err(Unauthorized {});
     }
 
@@ -171,7 +190,6 @@ pub fn execute_withdraw_nft(
     NUM_STAKED.update(deps.storage, |num: u64| -> StdResult<u64> { Ok(num - 1) });
 
     // Transfer remaining rewards to owner of staking contract
-    // TODO: in this case maybe we shouldnt allow owner to withdraw?
     withdraw_msgs.extend(msgs_from_rewards(
         &reward_map(deps.as_ref(), stake.last_claim_time)?,
         &cfg.owner,
