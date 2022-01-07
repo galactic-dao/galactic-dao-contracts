@@ -95,7 +95,7 @@ pub enum StakingExecuteMsg {
     WithdrawRewards { token_id: String },
     /// Used only by the contract owner to decommission the contract
     /// by withdrawing any unclaimed tokens
-    WithdrawTokens { balance: TokenBalance },
+    OwnerWithdrawTokens { balance: TokenBalance },
 }
 
 #[derive(Serialize, Deserialize, Clone, Debug, PartialEq, JsonSchema)]

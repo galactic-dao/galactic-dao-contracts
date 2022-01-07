@@ -144,15 +144,15 @@ pub fn execute_withdraw_rewards(
         return Err(Unauthorized {});
     }
 
-    // Update the stake
-    stake.last_claim_time = current_time;
-    staked_nfts().save(deps.storage, token_id, &stake);
-
     // Get rewards as send messages
     let send_reward_msgs: Vec<CosmosMsg> = msgs_from_rewards(
         &reward_map(deps.as_ref(), stake.last_claim_time)?,
         &stake.owner,
     )?;
+
+    // Update the stake
+    stake.last_claim_time = current_time;
+    staked_nfts().save(deps.storage, token_id, &stake);
 
     Ok(Response::new().add_messages(send_reward_msgs))
 }

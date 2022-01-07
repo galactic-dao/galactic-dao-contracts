@@ -76,7 +76,7 @@ pub fn execute(
         StakingExecuteMsg::WithdrawNft { token_id } => {
             execute_withdraw_nft(deps, env, info, &token_id)
         }
-        StakingExecuteMsg::WithdrawTokens { balance } => {
+        StakingExecuteMsg::OwnerWithdrawTokens { balance } => {
             execute_withdraw_tokens(deps, env, info, &balance)
         }
     }
