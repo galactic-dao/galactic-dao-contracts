@@ -1,4 +1,6 @@
-use cosmwasm_std::{attr, entry_point, to_binary, Binary, Deps, DepsMut, Env, MessageInfo, Response, StdResult, Order};
+use cosmwasm_std::{
+    attr, entry_point, to_binary, Binary, Deps, DepsMut, Env, MessageInfo, Response, StdResult,
+};
 use cw_storage_plus::U16Key;
 
 use galacticdao_nft_voting_protocol::cw721_querier::query_token_owner;
@@ -208,7 +210,7 @@ mod tests {
                 close_time: 100,
             },
         };
-        let info = mock_info(&owner, &[]);
+        let info = mock_info(&creator, &[]);
         instantiate(deps.as_mut(), mock_env(), info, instantiate_msg).unwrap();
 
         // Ensure expected initial state

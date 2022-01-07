@@ -1,5 +1,5 @@
 use crate::state::{staked_nfts, token_distributions, CONFIG, NUM_STAKED};
-use crate::util::{query_stake_state, reward_map, vec_from_rewards};
+use crate::util::{query_stake_state};
 use cosmwasm_std::{to_binary, Binary, Deps, Env, Order, StdResult};
 use cw_storage_plus::{Bound, PrimaryKey, U64Key};
 use galacticdao_nft_staking_protocol::staking::{StakedNft, StakedNftState, TokenDistribution};

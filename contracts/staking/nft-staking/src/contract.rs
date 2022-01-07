@@ -1,17 +1,16 @@
 use cosmwasm_std::{
-    attr, entry_point, to_binary, BankMsg, Binary, Coin, CosmosMsg, Deps, DepsMut, Env,
-    MessageInfo, Order, Pair, Reply, ReplyOn, Response, StdError, StdResult, SubMsg, Uint128,
-    Uint64, WasmMsg,
+    entry_point, Binary, Deps, DepsMut, Env,
+    MessageInfo, Response, StdResult,
 };
-use cw20::Cw20ReceiveMsg;
-use cw721::Cw721ReceiveMsg;
-use cw_storage_plus::{Bound, PrimaryKey, U64Key};
+
+
+
 use galacticdao_nft_staking_protocol::staking::{
-    MigrateMsg, StakedNft, StakingConfig, StakingExecuteMsg, StakingInstantiateMsg,
-    StakingQueryMsg, TokenBalance, TokenDistribution,
+    MigrateMsg, StakingConfig, StakingExecuteMsg, StakingInstantiateMsg,
+    StakingQueryMsg,
 };
-use std::borrow::{Borrow, BorrowMut};
-use std::convert::TryInto;
+
+
 
 use crate::error::ContractError;
 use crate::execute::{
@@ -22,7 +21,7 @@ use crate::query::{
     query_all_staked, query_config, query_distributions, query_num_staked, query_stake_by_addr,
     query_stake_by_token,
 };
-use crate::state::{staked_nfts, token_distribution_key, token_distributions, CONFIG, NUM_STAKED};
+use crate::state::{CONFIG, NUM_STAKED};
 
 #[cfg_attr(not(feature = "library"), entry_point)]
 pub fn instantiate(

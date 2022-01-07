@@ -1,12 +1,12 @@
-use crate::error::ContractError;
-use crate::state::{staked_nfts, token_distributions};
+
+use crate::state::{token_distributions};
 use cosmwasm_std::{
-    to_binary, CosmosMsg, Deps, DepsMut, Env, MessageInfo, Order, StdResult, Uint128, WasmMsg,
+    to_binary, CosmosMsg, Deps, Order, StdResult, Uint128, WasmMsg,
 };
 use cw20::Cw20ExecuteMsg;
 use cw_storage_plus::{Bound, PrimaryKey, U64Key};
 use galacticdao_nft_staking_protocol::staking::{
-    StakedNft, StakedNftState, TokenBalance, TokenDistribution,
+    StakedNft, StakedNftState, TokenBalance,
 };
 use std::collections::HashMap;
 

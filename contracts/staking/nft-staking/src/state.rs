@@ -1,7 +1,7 @@
-use cosmwasm_std::{DepsMut, Storage, Uint64};
-use cw_storage_plus::{Index, IndexList, IndexedMap, Item, Map, MultiIndex, U64Key, UniqueIndex};
+
+use cw_storage_plus::{Index, IndexList, IndexedMap, Item, MultiIndex, U64Key};
 use galacticdao_nft_staking_protocol::staking::{
-    StakedNft, StakingConfig, TokenBalance, TokenDistribution,
+    StakedNft, StakingConfig, TokenDistribution,
 };
 pub const TOKEN_DISTRIBUTIONS_PK_NAMESPACE: &'static str = "token_distributions";
 pub const STAKED_NFTS_PK_NAMESPACE: &'static str = "staked_nfts";

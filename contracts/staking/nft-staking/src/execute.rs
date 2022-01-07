@@ -3,7 +3,7 @@ use crate::error::ContractError::Unauthorized;
 use crate::state::{staked_nfts, token_distribution_key, token_distributions, CONFIG, NUM_STAKED};
 use crate::util::{msgs_from_rewards, reward_map};
 use cosmwasm_std::{
-    to_binary, CosmosMsg, DepsMut, Env, MessageInfo, Order, Response, StdError, StdResult, Uint128,
+    to_binary, CosmosMsg, DepsMut, Env, MessageInfo, Response, StdError, StdResult, Uint128,
     WasmMsg,
 };
 use cw20::{Cw20ExecuteMsg, Cw20ReceiveMsg};
@@ -15,7 +15,7 @@ use galacticdao_nft_staking_protocol::staking::{
 /// Change current configuration for the staking contract
 pub fn execute_change_config(
     deps: DepsMut,
-    env: Env,
+    _env: Env,
     info: MessageInfo,
     whitelisted_tokens: Option<Vec<String>>,
     trusted_token_sender: Option<String>,
@@ -71,7 +71,7 @@ pub fn execute_receive_nft(
             last_claim_time: stake_time,
         },
     )?;
-    NUM_STAKED.update(deps.storage, |num: u64| -> StdResult<u64> { Ok(num + 1) });
+    NUM_STAKED.update(deps.storage, |num: u64| -> StdResult<u64> { Ok(num + 1) })?;
 
     Ok(Response::new())
 }
@@ -152,7 +152,7 @@ pub fn execute_withdraw_rewards(
 
     // Update the stake
     stake.last_claim_time = current_time;
-    staked_nfts().save(deps.storage, token_id, &stake);
+    staked_nfts().save(deps.storage, token_id, &stake)?;
 
     Ok(Response::new().add_messages(send_reward_msgs))
 }
@@ -160,7 +160,7 @@ pub fn execute_withdraw_rewards(
 /// Withdraw the NFT from staking, callable by either the stake owner OR the owner of staking contract
 pub fn execute_withdraw_nft(
     deps: DepsMut,
-    env: Env,
+    _env: Env,
     info: MessageInfo,
     token_id: &String,
 ) -> Result<Response, ContractError> {
@@ -187,7 +187,7 @@ pub fn execute_withdraw_nft(
 
     // Delete the stake
     staked_nfts().remove(deps.storage, token_id)?;
-    NUM_STAKED.update(deps.storage, |num: u64| -> StdResult<u64> { Ok(num - 1) });
+    NUM_STAKED.update(deps.storage, |num: u64| -> StdResult<u64> { Ok(num - 1) })?;
 
     // Transfer remaining rewards to owner of staking contract
     withdraw_msgs.extend(msgs_from_rewards(
@@ -203,7 +203,7 @@ pub fn execute_withdraw_nft(
 /// Ideally, this is only used to decommission the contract or in emergencies
 pub fn execute_withdraw_tokens(
     deps: DepsMut,
-    env: Env,
+    _env: Env,
     info: MessageInfo,
     balance: &TokenBalance,
 ) -> Result<Response, ContractError> {

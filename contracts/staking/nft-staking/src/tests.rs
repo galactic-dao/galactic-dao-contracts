@@ -3,10 +3,10 @@ mod tests {
     use crate::contract::{execute, instantiate, query};
     use crate::error::ContractError;
     use cosmwasm_std::testing::{
-        mock_dependencies, mock_env, mock_info, MockApi, MockQuerier, MockStorage,
+        mock_dependencies, mock_env, mock_info,
     };
     use cosmwasm_std::{
-        coins, from_binary, to_binary, Binary, CosmosMsg, DepsMut, Env, OwnedDeps, Response,
+        from_binary, to_binary, Binary, CosmosMsg, DepsMut, Env, Response,
         SubMsg, Timestamp, Uint128, WasmMsg,
     };
     use cw20::{Cw20ExecuteMsg, Cw20ReceiveMsg};
@@ -484,7 +484,7 @@ mod tests {
         let mut second_distribution_env = mock_env();
         second_distribution_env.block.time = second_distribution_env.block.time.plus_seconds(100);
         let second_distribution_amt = Uint128::from(665u32);
-        let second_distribution_time = second_distribution_env.block.time.seconds();
+        let _second_distribution_time = second_distribution_env.block.time.seconds();
         distribute_token_for_test(
             deps.as_mut(),
             second_distribution_env.clone(),
