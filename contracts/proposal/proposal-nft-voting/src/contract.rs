@@ -210,7 +210,7 @@ mod tests {
                 close_time: 100,
             },
         };
-        let info = mock_info(&owner, &[]);
+        let info = mock_info(&creator, &[]);
         instantiate(deps.as_mut(), mock_env(), info, instantiate_msg).unwrap();
 
         // Ensure expected initial state

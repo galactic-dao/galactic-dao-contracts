@@ -1,4 +1,7 @@
-import { ProposalExecuteVoteMessage, ProposalQueryVotesMessage } from "./proposalTypes";
+import {
+  ProposalExecuteVoteMessage,
+  ProposalQueryVotesMessage,
+} from './proposalTypes';
 
 /*
 Execute

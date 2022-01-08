@@ -1,14 +1,19 @@
-import { Wallet } from "@terra-money/terra.js";
-import { Cw721InstantiateMessage, Cw721NumTokensResponse } from "../../nft/types";
-import instantiateContract from "../../utils/instantiateContract";
-import queryContract from "../../utils/queryContract";
-import { getCw721MintMsg, getCw721NumTokensMsg } from "../../nft/messages";
-import executeContract, { ExecuteContractOperation } from "../../utils/executeContract";
-import { range } from "lodash";
-import { cw721NftCodeIds } from "../../nft/constants";
-import { ProposalFactoryInstantiateMessage } from "../proposalFactoryTypes";
-import { TEST_PROPOSAL_COST } from "./constants";
-import { nftProposalCodeIds, nftProposalFactoryCodeIds } from "../constants";
+import { Wallet } from '@terra-money/terra.js';
+import {
+  Cw721InstantiateMessage,
+  Cw721NumTokensResponse,
+} from '../../nft/types';
+import instantiateContract from '../../utils/instantiateContract';
+import queryContract from '../../utils/queryContract';
+import { getCw721MintMsg, getCw721NumTokensMsg } from '../../nft/messages';
+import executeContract, {
+  ExecuteContractOperation,
+} from '../../utils/executeContract';
+import { range } from 'lodash';
+import { cw721NftCodeIds } from '../../nft/constants';
+import { ProposalFactoryInstantiateMessage } from '../proposalFactoryTypes';
+import { TEST_PROPOSAL_COST } from './constants';
+import { nftProposalCodeIds, nftProposalFactoryCodeIds } from '../constants';
 
 /**
  * Creates a test NFT contract with no token balances

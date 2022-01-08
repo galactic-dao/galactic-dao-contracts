@@ -1,19 +1,19 @@
-import { LCDClient, Wallet } from "@terra-money/terra.js";
+import { LCDClient, Wallet } from '@terra-money/terra.js';
 import {
   ProposalExecuteVoteMessage,
   ProposalQueryVotesMessage,
   ProposalStatusResponse,
-  ProposalVotesResponse
-} from "./proposalTypes";
-import queryContract from "../utils/queryContract";
+  ProposalVotesResponse,
+} from './proposalTypes';
+import queryContract from '../utils/queryContract';
 import {
   getProposalExecuteVoteMsg,
   getProposalQueryStatusMsg,
   getProposalQueryVotesMsg,
-  getProposalRevokeMsg
-} from "./proposalMessages";
-import { BlockTxBroadcastResult } from "@terra-money/terra.js/dist/client/lcd/api/TxAPI";
-import executeContract from "../utils/executeContract";
+  getProposalRevokeMsg,
+} from './proposalMessages';
+import { BlockTxBroadcastResult } from '@terra-money/terra.js/dist/client/lcd/api/TxAPI';
+import executeContract from '../utils/executeContract';
 
 /*
 Execute

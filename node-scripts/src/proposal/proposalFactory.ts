@@ -1,20 +1,20 @@
-import { LCDClient, Wallet } from "@terra-money/terra.js";
-import { Coins } from "@terra-money/terra.js/dist/core/Coins";
+import { LCDClient, Wallet } from '@terra-money/terra.js';
+import { Coins } from '@terra-money/terra.js/dist/core/Coins';
 import {
   ProposalFactoryExecuteCreateMessage,
   ProposalFactoryExecuteModifyConfigMessage,
   ProposalFactoryExecuteWithdrawMessage,
-  ProposalFactoryStatusResponse
-} from "./proposalFactoryTypes";
-import executeContract from "../utils/executeContract";
+  ProposalFactoryStatusResponse,
+} from './proposalFactoryTypes';
+import executeContract from '../utils/executeContract';
 import {
   getProposalFactoryExecuteCreateMsg,
   getProposalFactoryModifyConfigMsg,
   getProposalFactoryQueryStatusMsg,
-  getProposalFactoryWithdrawMsg
-} from "./proposalFactoryMessages";
-import { BlockTxBroadcastResult } from "@terra-money/terra.js/dist/client/lcd/api/TxAPI";
-import queryContract from "../utils/queryContract";
+  getProposalFactoryWithdrawMsg,
+} from './proposalFactoryMessages';
+import { BlockTxBroadcastResult } from '@terra-money/terra.js/dist/client/lcd/api/TxAPI';
+import queryContract from '../utils/queryContract';
 
 /*
 Execute

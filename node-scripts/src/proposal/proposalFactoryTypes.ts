@@ -1,4 +1,4 @@
-import { ProposalOption } from "./proposalTypes";
+import { ProposalOption } from './proposalTypes';
 
 /*
 Models

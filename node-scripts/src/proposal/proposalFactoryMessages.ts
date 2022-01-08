@@ -1,8 +1,8 @@
 import {
   ProposalFactoryExecuteCreateMessage,
   ProposalFactoryExecuteModifyConfigMessage,
-  ProposalFactoryExecuteWithdrawMessage
-} from "./proposalFactoryTypes";
+  ProposalFactoryExecuteWithdrawMessage,
+} from './proposalFactoryTypes';
 
 /*
 Execute
