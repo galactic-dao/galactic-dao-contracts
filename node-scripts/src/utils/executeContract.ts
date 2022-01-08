@@ -43,6 +43,7 @@ const executeContract = async ({
 
   const executeTx = await wallet.createAndSignTx({
     msgs: executeMessages,
+    gasAdjustment: 1.2,
   });
 
   const executeTxResult = await wallet.lcd.tx.broadcast(executeTx);

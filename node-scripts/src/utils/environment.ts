@@ -8,7 +8,7 @@ export type ChainTypeDependent<TValue> = {
 };
 
 type Environment = {
-  chainType: string;
+  chainType: ChainType;
   walletMnemonic: string;
 };
 
@@ -23,6 +23,6 @@ const chainType = checkNotNull(process.env.TERRA_CHAIN_TYPE, 'chain type');
 const walletMnemonic = checkNotNull(process.env.WALLET_MNEMONIC, 'wallet');
 
 export const environment: Environment = {
-  chainType,
+  chainType: chainType as ChainType,
   walletMnemonic,
 };

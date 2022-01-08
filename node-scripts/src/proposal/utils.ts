@@ -1,4 +1,4 @@
-import { BlockTxBroadcastResult, TxLog } from "@terra-money/terra.js";
+import { BlockTxBroadcastResult, TxLog } from '@terra-money/terra.js';
 
 /**
  * Parses the txlog from calling create_proposal on the factory to retrieve
