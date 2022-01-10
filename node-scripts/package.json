@@ -7,7 +7,7 @@
   },
   "scripts": {
     "upload-contract": "ts-node src/common/uploadContractToChain.ts",
-    "proposal/integration-test/full": "ts-node src/proposal/integrationTests/main.ts",
+    "proposal/integration-test/full": "ts-node src/proposal/integrationTests/main.ts"
   },
   "author": "",
   "license": "ISC",

@@ -1,16 +1,8 @@
-use cosmwasm_std::{
-    entry_point, Binary, Deps, DepsMut, Env,
-    MessageInfo, Response, StdResult,
-};
-
-
+use cosmwasm_std::{entry_point, Binary, Deps, DepsMut, Env, MessageInfo, Response, StdResult};
 
 use galacticdao_nft_staking_protocol::staking::{
-    MigrateMsg, StakingConfig, StakingExecuteMsg, StakingInstantiateMsg,
-    StakingQueryMsg,
+    MigrateMsg, StakingConfig, StakingExecuteMsg, StakingInstantiateMsg, StakingQueryMsg,
 };
-
-
 
 use crate::error::ContractError;
 use crate::execute::{
@@ -18,8 +10,8 @@ use crate::execute::{
     execute_withdraw_rewards, execute_withdraw_tokens,
 };
 use crate::query::{
-    query_all_staked, query_config, query_distributions, query_num_staked, query_stake_by_addr,
-    query_stake_by_token,
+    query_all_staked, query_config, query_distribution, query_distributions, query_num_staked,
+    query_stake_by_addr, query_stake_by_token,
 };
 use crate::state::{CONFIG, NUM_STAKED};
 
@@ -85,18 +77,25 @@ pub fn execute(
 pub fn query(deps: Deps, env: Env, msg: StakingQueryMsg) -> StdResult<Binary> {
     match msg {
         StakingQueryMsg::Config {} => query_config(deps, env),
-        StakingQueryMsg::StakedByAddr { address } => query_stake_by_addr(deps, env, &address),
+        StakingQueryMsg::StakedByAddr {
+            address,
+            start_after_token,
+            limit,
+        } => query_stake_by_addr(deps, env, &address, &start_after_token, &limit),
         StakingQueryMsg::StakedByToken { token_id } => query_stake_by_token(deps, env, &token_id),
         StakingQueryMsg::AllStaked {
             start_after_token,
             limit,
         } => query_all_staked(deps, env, &start_after_token, &limit),
         StakingQueryMsg::NumStaked {} => query_num_staked(deps, env),
+        StakingQueryMsg::Distribution { time, token_addr } => {
+            query_distribution(deps, env, &token_addr, time)
+        }
         StakingQueryMsg::Distributions {
-            after_time,
+            start_after_time,
             limit,
             token_addr,
-        } => query_distributions(deps, env, &token_addr, &after_time, &limit),
+        } => query_distributions(deps, env, &token_addr, &start_after_time, &limit),
     }
 }
 

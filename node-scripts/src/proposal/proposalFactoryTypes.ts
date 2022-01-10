@@ -29,7 +29,7 @@ export type ProposalFactoryInstantiateMessage = {
 };
 
 export type ProposalFactoryExecuteCreateMessage = {
-  proposal_uri: String;
+  proposal_uri: string;
   options: ProposalOption[];
   close_time: number;
 };

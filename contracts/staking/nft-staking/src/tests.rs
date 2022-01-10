@@ -1,21 +1,22 @@
 #[cfg(test)]
 mod tests {
-    use crate::contract::{execute, instantiate, query};
-    use crate::error::ContractError;
-    use cosmwasm_std::testing::{
-        mock_dependencies, mock_env, mock_info,
-    };
+    use std::ops::Div;
+
+    use cosmwasm_std::testing::{mock_dependencies, mock_env, mock_info};
     use cosmwasm_std::{
-        from_binary, to_binary, Binary, CosmosMsg, DepsMut, Env, Response,
-        SubMsg, Timestamp, Uint128, WasmMsg,
+        from_binary, to_binary, Binary, CosmosMsg, DepsMut, Env, Response, SubMsg, Timestamp,
+        Uint128, WasmMsg,
     };
     use cw20::{Cw20ExecuteMsg, Cw20ReceiveMsg};
     use cw721::{Cw721ExecuteMsg, Cw721ReceiveMsg};
+
     use galacticdao_nft_staking_protocol::staking::{
         StakedNft, StakedNftState, StakingConfig, StakingExecuteMsg, StakingInstantiateMsg,
         StakingQueryMsg, TokenBalance, TokenDistribution,
     };
-    use std::ops::Div;
+
+    use crate::contract::{execute, instantiate, query};
+    use crate::error::ContractError;
 
     // Addresses
     const NFT: &str = "nft";
@@ -161,6 +162,8 @@ mod tests {
         // Test query by address empty
         let query_msg = StakingQueryMsg::StakedByAddr {
             address: STAKER_1.to_string(),
+            start_after_token: None,
+            limit: None,
         };
         let query_response: Vec<StakedNftState> =
             from_binary(&query(deps.as_ref(), mock_env(), query_msg).unwrap()).unwrap();
@@ -211,6 +214,8 @@ mod tests {
         // Test query by address
         let query_msg = StakingQueryMsg::StakedByAddr {
             address: STAKER_1.to_string(),
+            start_after_token: None,
+            limit: None,
         };
         let query_response: Vec<StakedNftState> =
             from_binary(&query(deps.as_ref(), mock_env(), query_msg).unwrap()).unwrap();
@@ -225,6 +230,36 @@ mod tests {
             }
         );
         assert_eq!(query_response[1].unclaimed_rewards, vec![]);
+
+        // Test query by address with limit of 1 and with start_after
+        let query_response: Vec<StakedNftState> = from_binary(
+            &query(
+                deps.as_ref(),
+                mock_env(),
+                StakingQueryMsg::StakedByAddr {
+                    address: STAKER_1.to_string(),
+                    start_after_token: Some(NFT_TOKEN_ID_1.to_string()),
+                    limit: None,
+                },
+            )
+            .unwrap(),
+        )
+        .unwrap();
+        assert_eq!(query_response.len(), 1);
+        let query_response: Vec<StakedNftState> = from_binary(
+            &query(
+                deps.as_ref(),
+                mock_env(),
+                StakingQueryMsg::StakedByAddr {
+                    address: STAKER_1.to_string(),
+                    start_after_token: None,
+                    limit: Some(1),
+                },
+            )
+            .unwrap(),
+        )
+        .unwrap();
+        assert_eq!(query_response.len(), 1);
 
         // Test get all with limit
         let query_msg = StakingQueryMsg::AllStaked {
@@ -326,6 +361,8 @@ mod tests {
 
         let query_msg = StakingQueryMsg::StakedByAddr {
             address: STAKER_1.to_string(),
+            start_after_token: None,
+            limit: None,
         };
         let query_response: Vec<StakedNftState> =
             from_binary(&query(deps.as_ref(), mock_env(), query_msg).unwrap()).unwrap();
@@ -418,7 +455,7 @@ mod tests {
                 deps.as_ref(),
                 first_distribution_env.clone(),
                 StakingQueryMsg::Distributions {
-                    after_time: Some(first_distribution_time - 1),
+                    start_after_time: Some(first_distribution_time - 1),
                     limit: None,
                     token_addr: None,
                 },
@@ -444,7 +481,7 @@ mod tests {
                 deps.as_ref(),
                 first_distribution_env.clone(),
                 StakingQueryMsg::Distributions {
-                    after_time: Some(first_distribution_time),
+                    start_after_time: Some(first_distribution_time),
                     limit: None,
                     token_addr: None,
                 },
@@ -544,7 +581,7 @@ mod tests {
                 deps.as_ref(),
                 first_distribution_env.clone(),
                 StakingQueryMsg::Distributions {
-                    after_time: None,
+                    start_after_time: None,
                     limit: None,
                     token_addr: Some(TOKEN_1.to_string()),
                 },

@@ -1,16 +1,18 @@
-use crate::error::ContractError;
-use crate::error::ContractError::Unauthorized;
-use crate::state::{staked_nfts, token_distribution_key, token_distributions, CONFIG, NUM_STAKED};
-use crate::util::{msgs_from_rewards, reward_map};
 use cosmwasm_std::{
     to_binary, CosmosMsg, DepsMut, Env, MessageInfo, Response, StdError, StdResult, Uint128,
     WasmMsg,
 };
 use cw20::{Cw20ExecuteMsg, Cw20ReceiveMsg};
 use cw721::{Cw721ExecuteMsg, Cw721ReceiveMsg};
+
 use galacticdao_nft_staking_protocol::staking::{
     StakedNft, StakingConfig, TokenBalance, TokenDistribution,
 };
+
+use crate::error::ContractError;
+use crate::error::ContractError::Unauthorized;
+use crate::state::{staked_nfts, token_distribution_key, token_distributions, CONFIG, NUM_STAKED};
+use crate::util::{msgs_from_rewards, reward_map};
 
 /// Change current configuration for the staking contract
 pub fn execute_change_config(
@@ -115,7 +117,8 @@ pub fn execute_receive_token(
             token: token_addr.clone(),
         },
     };
-    let distribution_key = token_distribution_key(&distribution);
+    let distribution_key =
+        token_distribution_key(&distribution.per_token_balance.token, distribution.time);
 
     // Update distributions
     token_distributions().save(deps.storage, distribution_key.as_str(), &distribution)?;

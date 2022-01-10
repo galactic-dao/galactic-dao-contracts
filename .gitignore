@@ -13,3 +13,6 @@
 # IDEs
 *.iml
 .idea
+
+# ts-rs Generated bindings, which are useful for creating initial types but not currently used directly
+bindings/

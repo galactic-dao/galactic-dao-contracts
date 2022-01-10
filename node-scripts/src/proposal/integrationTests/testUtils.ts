@@ -5,7 +5,10 @@ import {
 } from '../../nft/types';
 import instantiateContract from '../../utils/instantiateContract';
 import queryContract from '../../utils/queryContract';
-import { getCw721MintMsg, getCw721NumTokensMsg } from '../../nft/messages';
+import {
+  getCw721ExecuteMintMsg,
+  getCw721QueryNumTokensMsg,
+} from '../../nft/messages';
 import executeContract, {
   ExecuteContractOperation,
 } from '../../utils/executeContract';
@@ -42,7 +45,7 @@ export async function mintTestNfts(
   const numTokensResponse = await queryContract<Cw721NumTokensResponse>({
     contractAddress: testNftContract,
     lcdClient: wallet.lcd,
-    queryMessage: getCw721NumTokensMsg(),
+    queryMessage: getCw721QueryNumTokensMsg(),
   });
   let currentTokenId = numTokensResponse.count + 1;
 
@@ -54,10 +57,10 @@ export async function mintTestNfts(
         (itemNumForAddress) => {
           return {
             coins: [],
-            message: getCw721MintMsg(
-              (currentTokenId + itemNumForAddress).toFixed(0),
-              address
-            ),
+            message: getCw721ExecuteMintMsg({
+              token_id: (currentTokenId + itemNumForAddress).toFixed(0),
+              owner: address,
+            }),
           };
         }
       )

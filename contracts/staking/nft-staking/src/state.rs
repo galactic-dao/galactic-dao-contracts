@@ -1,8 +1,7 @@
-
 use cw_storage_plus::{Index, IndexList, IndexedMap, Item, MultiIndex, U64Key};
-use galacticdao_nft_staking_protocol::staking::{
-    StakedNft, StakingConfig, TokenDistribution,
-};
+
+use galacticdao_nft_staking_protocol::staking::{StakedNft, StakingConfig, TokenDistribution};
+
 pub const TOKEN_DISTRIBUTIONS_PK_NAMESPACE: &'static str = "token_distributions";
 pub const STAKED_NFTS_PK_NAMESPACE: &'static str = "staked_nfts";
 
@@ -34,11 +33,8 @@ pub fn token_distributions<'a>(
 }
 
 /// Util to get a unique PK for token distribution
-pub fn token_distribution_key(distribution: &TokenDistribution) -> String {
-    format!(
-        "{}_{}",
-        distribution.per_token_balance.token, distribution.time
-    )
+pub fn token_distribution_key(token_addr: &str, time: u64) -> String {
+    format!("{}_{}", token_addr, time)
 }
 
 /// Indexed map to retrieve staked NFTs, with primary key being the token ID
@@ -79,7 +75,7 @@ Indexed Map - NFTs
  */
 
 pub struct StakedNftIndices<'a> {
-    /// Index of (owner addr string) -> StakedNftState
+    /// Index of (owner addr string, addr as byte array) -> StakedNftState
     pub owner: MultiIndex<'a, (String, Vec<u8>), StakedNft>,
 }
 

@@ -104,7 +104,11 @@ pub enum StakingQueryMsg {
     /// Queries config of contract
     Config {},
     /// Queries staked NFT states by address
-    StakedByAddr { address: String },
+    StakedByAddr {
+        address: String,
+        start_after_token: Option<String>,
+        limit: Option<u32>,
+    },
     /// Queries staked NFT state by token ID
     StakedByToken { token_id: String },
     /// Queries all staked NFT states, paginated by token ID
@@ -114,10 +118,12 @@ pub enum StakingQueryMsg {
     },
     /// Returns number of staked NFTs
     NumStaked {},
+    /// Returns a single distribution, if found
+    Distribution { time: u64, token_addr: String },
     /// Returns past distribution history, capped at 32
     Distributions {
-        after_time: Option<u64>,
         token_addr: Option<String>,
+        start_after_time: Option<u64>,
         limit: Option<u32>,
     },
 }
