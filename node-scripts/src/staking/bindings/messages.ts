@@ -1,4 +1,5 @@
 import {
+  StakingCw20ExecuteSendMessage,
   StakingExecuteChangeConfigMessage,
   StakingExecuteOwnerWithdrawTokensMessage,
   StakingExecuteWithdrawNftMessage,
@@ -42,6 +43,15 @@ export function getStakingExecuteOwnerWithdrawTokensMsg(
 ) {
   return {
     owner_withdraw_tokens: params,
+  };
+}
+
+// From CW20 for distribution
+export function getStakingCw20SendTokenMsg(
+  params: StakingCw20ExecuteSendMessage
+) {
+  return {
+    send: params,
   };
 }
 

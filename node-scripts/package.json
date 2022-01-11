@@ -6,8 +6,16 @@
     "node": "16.x"
   },
   "scripts": {
-    "upload-contract": "ts-node src/common/uploadContractToChain.ts",
-    "proposal/integration-test/full": "ts-node src/proposal/integrationTests/main.ts"
+    "upload-contract": "ts-node src/common/scripts/uploadContractToChain.ts",
+    "nft/query": "ts-node src/nft/scripts/queryNft.ts",
+    "proposal/integration-test/full": "ts-node src/proposal/integrationTests/main.ts",
+    "staking/playground": "ts-node src/staking/scripts/playground.ts",
+    "staking/instantiate": "ts-node src/staking/scripts/instantiateStakingContract.ts",
+    "staking/distributeTokens": "ts-node src/staking/scripts/distributeTokens.ts",
+    "staking/query": "ts-node src/staking/scripts/queryStaking.ts",
+    "staking/stakeNft": "ts-node src/staking/scripts/stakeNft.ts",
+    "staking/withdrawNft": "ts-node src/staking/scripts/withdrawNft.ts",
+    "staking/withdrawRewards": "ts-node src/staking/scripts/withdrawRewards.ts"
   },
   "author": "",
   "license": "ISC",

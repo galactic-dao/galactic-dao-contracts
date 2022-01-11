@@ -9,7 +9,8 @@ export type ChainTypeDependent<TValue> = {
 
 type Environment = {
   chainType: ChainType;
-  walletMnemonic: string;
+  defaultWalletMnemonic: string;
+  royaltiesWalletMnemonic: string;
 };
 
 const checkNotNull = (envVar?: string, name?: string): string => {
@@ -20,9 +21,20 @@ const checkNotNull = (envVar?: string, name?: string): string => {
 };
 
 const chainType = checkNotNull(process.env.TERRA_CHAIN_TYPE, 'chain type');
-const walletMnemonic = checkNotNull(process.env.WALLET_MNEMONIC, 'wallet');
+
+// Wallets
+const defaultWalletMnemonic = checkNotNull(
+  process.env.DEFAULT_WALLET_MNEMONIC,
+  'default wallet'
+);
+
+const royaltiesWalletMnemonic = checkNotNull(
+  process.env.ROYALTIES_WALLET_MNEMONIC,
+  'royalties wallet'
+);
 
 export const environment: Environment = {
   chainType: chainType as ChainType,
-  walletMnemonic,
+  defaultWalletMnemonic,
+  royaltiesWalletMnemonic,
 };

@@ -7,7 +7,7 @@ export const getWallet = (
   lcdClientOverride?: LCDClient
 ): Wallet => {
   const rk = new MnemonicKey({
-    mnemonic: mnemonicOverride ?? environment.walletMnemonic,
+    mnemonic: mnemonicOverride ?? environment.defaultWalletMnemonic,
   });
   const lcdClientToUse = lcdClientOverride ?? defaultLcdClient;
   return lcdClientToUse.wallet(rk);

@@ -149,7 +149,7 @@ pub struct ProposalStatusResponse {
 
 ```rust
 pub struct VotesQueryResponse {
-    /// Voted option IDs in the same order as the token IDs provided in the query, null if no vote exists
+    /// Voted option IDs in the same order as the token IDs provided in the queryNft, null if no vote exists
     pub votes: Vec<Option<u16>>,
 }
 ```

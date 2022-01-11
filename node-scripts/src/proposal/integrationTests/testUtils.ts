@@ -2,18 +2,18 @@ import { Wallet } from '@terra-money/terra.js';
 import {
   Cw721InstantiateMessage,
   Cw721NumTokensResponse,
-} from '../../nft/types';
+} from '../../nft/bindings/types';
 import instantiateContract from '../../utils/instantiateContract';
 import queryContract from '../../utils/queryContract';
 import {
   getCw721ExecuteMintMsg,
   getCw721QueryNumTokensMsg,
-} from '../../nft/messages';
+} from '../../nft/bindings/messages';
 import executeContract, {
   ExecuteContractOperation,
 } from '../../utils/executeContract';
 import { range } from 'lodash';
-import { cw721NftCodeIds } from '../../nft/constants';
+import { cw721NftCodeIds } from '../../nft/bindings/constants';
 import { ProposalFactoryInstantiateMessage } from '../proposalFactoryTypes';
 import { TEST_PROPOSAL_COST } from './constants';
 import { nftProposalCodeIds, nftProposalFactoryCodeIds } from '../constants';

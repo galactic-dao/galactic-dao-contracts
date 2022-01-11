@@ -1,3 +1,6 @@
+# Ignore playground scripts
+playground.ts
+
 .idea/
 temp/
 

@@ -40,7 +40,7 @@ export interface StakingInstantiateMessage {
   nft_contract: string;
   whitelisted_tokens: string[];
   trusted_token_sender: string;
-  reward_withdrawal_timeout: bigint;
+  reward_withdrawal_timeout: number;
 }
 
 export interface StakingExecuteChangeConfigMessage {
@@ -85,6 +85,14 @@ export interface StakingQueryDistributionsMessage {
   start_after_time?: string;
   token_addr?: string;
   limit?: string;
+}
+
+// CW20
+export interface StakingCw20ExecuteSendMessage {
+  // Destination contract
+  contract: string;
+  amount: string;
+  msg: string;
 }
 
 /*
