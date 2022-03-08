@@ -1,5 +1,5 @@
 import { getLogger } from '../../common/logger';
-import { nftStakingContractAddrs } from '../bindings/constants';
+import { nftStakingContractAddrs } from '../constants';
 import { environment } from '../../utils/environment';
 import { getWallet } from '../../utils/wallet';
 import executeContract from '../../utils/executeContract';

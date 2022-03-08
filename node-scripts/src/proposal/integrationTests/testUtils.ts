@@ -13,7 +13,7 @@ import executeContract, {
   ExecuteContractOperation,
 } from '../../utils/executeContract';
 import { range } from 'lodash';
-import { cw721NftCodeIds } from '../../nft/bindings/constants';
+import { cw721NftCodeIds } from '../../nft/constants';
 import { ProposalFactoryInstantiateMessage } from '../proposalFactoryTypes';
 import { TEST_PROPOSAL_COST } from './constants';
 import { nftProposalCodeIds, nftProposalFactoryCodeIds } from '../constants';

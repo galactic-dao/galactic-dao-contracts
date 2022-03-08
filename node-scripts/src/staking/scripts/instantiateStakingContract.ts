@@ -1,6 +1,6 @@
 import { StakingInstantiateMessage } from '../bindings/types';
 import { getLogger } from '../../common/logger';
-import { nftStakingCodeIds } from '../bindings/constants';
+import { nftStakingCodeIds } from '../constants';
 import { environment } from '../../utils/environment';
 import { getWallet } from '../../utils/wallet';
 import instantiateContract from '../../utils/instantiateContract';

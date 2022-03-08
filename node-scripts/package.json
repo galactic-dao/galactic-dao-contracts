@@ -11,6 +11,7 @@
     "proposal/integration-test/full": "ts-node src/proposal/integrationTests/main.ts",
     "staking/playground": "ts-node src/staking/scripts/playground.ts",
     "staking/instantiate": "ts-node src/staking/scripts/instantiateStakingContract.ts",
+    "staking/changeConfig": "ts-node src/staking/scripts/changeConfig.ts",
     "staking/distributeTokens": "ts-node src/staking/scripts/distributeTokens.ts",
     "staking/query": "ts-node src/staking/scripts/queryStaking.ts",
     "staking/stakeNft": "ts-node src/staking/scripts/stakeNft.ts",

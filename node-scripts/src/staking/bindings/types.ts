@@ -44,9 +44,9 @@ export interface StakingInstantiateMessage {
 }
 
 export interface StakingExecuteChangeConfigMessage {
-  whitelisted_tokens?: string[];
-  trusted_token_sender?: string;
-  reward_withdrawal_timeout?: string;
+  whitelisted_tokens: string[] | null;
+  trusted_token_sender: string | null;
+  reward_withdrawal_timeout: string | null;
 }
 
 export interface StakingExecuteWithdrawNftMessage {

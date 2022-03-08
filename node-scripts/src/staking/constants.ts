@@ -1,4 +1,4 @@
-import { ChainTypeDependent } from '../../utils/environment';
+import { ChainTypeDependent } from '../utils/environment';
 
 export const nftStakingCodeIds: ChainTypeDependent<number> = {
   LOCAL: -1,

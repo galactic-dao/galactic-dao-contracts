@@ -71,8 +71,6 @@ export type Cw721TokensResponse = {
 };
 
 export type Cw721NftInfoResponse = {
-  token_id: string;
-  owner: string;
   token_uri?: string;
   extension?: NftMetadataExtension;
 };

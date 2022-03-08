@@ -5,8 +5,9 @@ import {
   getStakingQueryAllStakedMsg,
   getStakingQueryConfigMsg,
   getStakingQueryDistributionsMsg,
+  getStakingQueryNumStakedMsg,
 } from '../bindings/messages';
-import { nftStakingContractAddrs } from '../bindings/constants';
+import { nftStakingContractAddrs } from '../constants';
 import { environment } from '../../utils/environment';
 import {
   StakingQueryAllStakedMessage,
@@ -18,6 +19,8 @@ Query msgs
  */
 
 const CONFIG_QUERY_MSG = getStakingQueryConfigMsg();
+
+const NUM_STAKED_QUERY_MSG = getStakingQueryNumStakedMsg();
 
 const _allStakedParams: StakingQueryAllStakedMessage = {
   start_after_token: undefined,
@@ -38,7 +41,7 @@ const logger = getLogger('queryStaking');
 async function queryStaking() {
   const resp = await queryContract({
     contractAddress: nftStakingContractAddrs[environment.chainType],
-    queryMessage: ALL_STAKED_QUERY_MSG,
+    queryMessage: NUM_STAKED_QUERY_MSG,
     lcdClient: getLCDClient(),
   });
 
