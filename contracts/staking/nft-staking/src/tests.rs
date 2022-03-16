@@ -12,7 +12,7 @@ mod tests {
 
     use galacticdao_nft_staking_protocol::staking::{
         StakedNft, StakedNftState, StakingConfig, StakingExecuteMsg, StakingInstantiateMsg,
-        StakingQueryMsg, TokenBalance, TokenDistribution,
+        StakingQueryMsg, TokenBalance,
     };
 
     use crate::contract::{execute, instantiate, query};
@@ -78,6 +78,16 @@ mod tests {
                 amount: amount.clone(),
                 msg: Binary::default(),
             }),
+        )
+    }
+
+    fn assert_token_balance(balances: &Vec<TokenBalance>, expected: &TokenBalance) {
+        assert_eq!(
+            balances
+                .iter()
+                .find(|x| x.token == expected.token.to_string())
+                .unwrap(),
+            expected
         )
     }
 
@@ -206,7 +216,8 @@ mod tests {
                 time_deposited: first_stake_time,
                 can_withdraw_rewards_time: first_stake_time + 1000,
                 owner: STAKER_1.to_string(),
-                last_claim_time: first_stake_time
+                beginning_reward_snapshot: vec![],
+                last_reward_snapshot: vec![]
             }
         );
         assert_eq!(query_response.unclaimed_rewards, vec![]);
@@ -226,7 +237,8 @@ mod tests {
                 time_deposited: second_stake_time,
                 can_withdraw_rewards_time: second_stake_time + 1000,
                 owner: STAKER_1.to_string(),
-                last_claim_time: second_stake_time
+                beginning_reward_snapshot: vec![],
+                last_reward_snapshot: vec![]
             }
         );
         assert_eq!(query_response[1].unclaimed_rewards, vec![]);
@@ -276,7 +288,8 @@ mod tests {
                 time_deposited: first_stake_time,
                 can_withdraw_rewards_time: first_stake_time + 1000,
                 owner: STAKER_1.to_string(),
-                last_claim_time: first_stake_time
+                beginning_reward_snapshot: vec![],
+                last_reward_snapshot: vec![]
             }
         );
         // Pagination
@@ -294,7 +307,8 @@ mod tests {
                 time_deposited: first_stake_time,
                 can_withdraw_rewards_time: first_stake_time + 1000,
                 owner: STAKER_2.to_string(),
-                last_claim_time: first_stake_time
+                beginning_reward_snapshot: vec![],
+                last_reward_snapshot: vec![]
             }
         );
     }
@@ -450,46 +464,23 @@ mod tests {
         .unwrap();
 
         // Query to make sure we have the correct distribution saved
-        let distributions_query: Vec<TokenDistribution> = from_binary(
+        let total_rewards_query: Vec<TokenBalance> = from_binary(
             &query(
                 deps.as_ref(),
                 first_distribution_env.clone(),
-                StakingQueryMsg::Distributions {
-                    start_after_time: Some(first_distribution_time - 1),
-                    limit: None,
-                    token_addr: None,
-                },
+                StakingQueryMsg::TotalRewards {},
             )
             .unwrap(),
         )
         .unwrap();
-        assert_eq!(distributions_query.len(), 1 as usize);
+        assert_eq!(total_rewards_query.len(), 1 as usize);
         assert_eq!(
-            distributions_query[0],
-            TokenDistribution {
-                time: first_distribution_time,
-                per_token_balance: TokenBalance {
-                    amount: first_distribution_amt.clone(),
-                    token: TOKEN_1.to_string()
-                }
+            total_rewards_query[0],
+            TokenBalance {
+                amount: first_distribution_amt.clone(),
+                token: TOKEN_1.to_string()
             }
         );
-
-        // Next query will be at first_distribution_time, and should return nothing as it is exclusively bound
-        let query_resp: Vec<TokenDistribution> = from_binary(
-            &query(
-                deps.as_ref(),
-                first_distribution_env.clone(),
-                StakingQueryMsg::Distributions {
-                    start_after_time: Some(first_distribution_time),
-                    limit: None,
-                    token_addr: None,
-                },
-            )
-            .unwrap(),
-        )
-        .unwrap();
-        assert_eq!(query_resp.len(), 0 as usize);
 
         // Stake another NFT
         let mut stake_env = mock_env();
@@ -515,7 +506,13 @@ mod tests {
             .unwrap(),
         )
         .unwrap();
-        assert_eq!(query_resp.unclaimed_rewards, vec![]);
+        assert_eq!(
+            query_resp.unclaimed_rewards,
+            vec![TokenBalance {
+                amount: Uint128::zero(),
+                token: TOKEN_1.to_string()
+            }]
+        );
 
         // Now distribute again
         let mut second_distribution_env = mock_env();
@@ -543,19 +540,21 @@ mod tests {
             .unwrap(),
         )
         .unwrap();
-        assert_eq!(
-            query_resp.unclaimed_rewards,
-            vec![
-                TokenBalance {
-                    amount: first_distribution_amt.clone(),
-                    token: TOKEN_1.to_string()
-                },
-                TokenBalance {
-                    amount: second_distribution_amt.div(Uint128::from(2u8)),
-                    token: TOKEN_2.to_string()
-                }
-            ]
+        assert_token_balance(
+            &query_resp.unclaimed_rewards,
+            &TokenBalance {
+                amount: first_distribution_amt.clone(),
+                token: TOKEN_1.to_string(),
+            },
         );
+        assert_token_balance(
+            &query_resp.unclaimed_rewards,
+            &TokenBalance {
+                amount: second_distribution_amt.div(Uint128::from(2u8)),
+                token: TOKEN_2.to_string(),
+            },
+        );
+
         let query_resp: StakedNftState = from_binary(
             &query(
                 deps.as_ref(),
@@ -567,30 +566,40 @@ mod tests {
             .unwrap(),
         )
         .unwrap();
-        assert_eq!(
-            query_resp.unclaimed_rewards,
-            vec![TokenBalance {
+        assert_eq!(query_resp.unclaimed_rewards.len(), 2 as usize);
+        assert_token_balance(
+            &query_resp.unclaimed_rewards,
+            &TokenBalance {
+                amount: Uint128::zero(),
+                token: TOKEN_1.to_string(),
+            },
+        );
+        assert_token_balance(
+            &query_resp.unclaimed_rewards,
+            &TokenBalance {
                 amount: second_distribution_amt.div(Uint128::from(2u8)),
-                token: TOKEN_2.to_string()
-            }]
+                token: TOKEN_2.to_string(),
+            },
         );
 
-        // Now test querying by token
-        let query_resp: Vec<TokenDistribution> = from_binary(
+        // check total rewards again
+        let total_rewards_query: Vec<TokenBalance> = from_binary(
             &query(
                 deps.as_ref(),
                 first_distribution_env.clone(),
-                StakingQueryMsg::Distributions {
-                    start_after_time: None,
-                    limit: None,
-                    token_addr: Some(TOKEN_1.to_string()),
-                },
+                StakingQueryMsg::TotalRewards {},
             )
             .unwrap(),
         )
         .unwrap();
-        assert_eq!(query_resp.len(), 1 as usize);
-        assert_eq!(query_resp[0].per_token_balance.token, TOKEN_1.to_string());
+        assert_eq!(total_rewards_query.len(), 2 as usize);
+        assert_eq!(
+            total_rewards_query[1],
+            TokenBalance {
+                amount: second_distribution_amt.div(Uint128::from(2u8)),
+                token: TOKEN_2.to_string()
+            }
+        );
     }
 
     #[test]

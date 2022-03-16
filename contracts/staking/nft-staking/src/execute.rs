@@ -5,14 +5,12 @@ use cosmwasm_std::{
 use cw20::{Cw20ExecuteMsg, Cw20ReceiveMsg};
 use cw721::{Cw721ExecuteMsg, Cw721ReceiveMsg};
 
-use galacticdao_nft_staking_protocol::staking::{
-    StakedNft, StakingConfig, TokenBalance, TokenDistribution,
-};
+use galacticdao_nft_staking_protocol::staking::{StakedNft, StakingConfig, TokenBalance};
 
 use crate::error::ContractError;
 use crate::error::ContractError::Unauthorized;
-use crate::state::{staked_nfts, token_distribution_key, token_distributions, CONFIG, NUM_STAKED};
-use crate::util::{msgs_from_rewards, reward_map};
+use crate::state::{staked_nfts, CONFIG, NUM_STAKED, TOTAL_REWARDS};
+use crate::util::{balance_map_diff, balance_vec_to_map, msgs_from_rewards, validate_tokens};
 
 /// Change current configuration for the staking contract
 pub fn execute_change_config(
@@ -29,12 +27,15 @@ pub fn execute_change_config(
         return Err(ContractError::Unauthorized {});
     }
 
+    let whitelisted_tokens = whitelisted_tokens.map_or(cfg.whitelisted_tokens.clone(), |tokens| {
+        validate_tokens(deps.as_ref(), &tokens).unwrap();
+        tokens
+    });
+
     CONFIG.save(
         deps.storage,
         &StakingConfig {
-            whitelisted_tokens: whitelisted_tokens
-                .unwrap_or(cfg.whitelisted_tokens.clone())
-                .clone(),
+            whitelisted_tokens,
             trusted_token_sender: trusted_token_sender.unwrap_or(cfg.trusted_token_sender.clone()),
             reward_withdrawal_timeout: reward_withdrawal_timeout
                 .unwrap_or(cfg.reward_withdrawal_timeout),
@@ -57,6 +58,7 @@ pub fn execute_receive_nft(
     let token_id = receive_msg.token_id.clone();
 
     let cfg = CONFIG.load(deps.storage)?;
+    let curr_rewards = TOTAL_REWARDS.load(deps.storage)?;
     if cfg.nft_contract != nft_addr {
         return Err(ContractError::InvalidNft {});
     }
@@ -70,7 +72,8 @@ pub fn execute_receive_nft(
             time_deposited: stake_time,
             can_withdraw_rewards_time: stake_time + cfg.reward_withdrawal_timeout,
             owner: nft_owner,
-            last_claim_time: stake_time,
+            beginning_reward_snapshot: curr_rewards.clone(),
+            last_reward_snapshot: curr_rewards.clone(),
         },
     )?;
     NUM_STAKED.update(deps.storage, |num: u64| -> StdResult<u64> { Ok(num + 1) })?;
@@ -81,7 +84,7 @@ pub fn execute_receive_nft(
 /// Handle receiving a CW20 token
 pub fn execute_receive_token(
     deps: DepsMut,
-    env: Env,
+    _env: Env,
     info: MessageInfo,
     receive_msg: &Cw20ReceiveMsg,
 ) -> Result<Response, ContractError> {
@@ -110,18 +113,23 @@ pub fn execute_receive_token(
         )));
     }
 
-    let distribution = TokenDistribution {
-        time: env.block.time.seconds(),
-        per_token_balance: TokenBalance {
-            amount: amount_per_stake.clone(),
-            token: token_addr.clone(),
-        },
-    };
-    let distribution_key =
-        token_distribution_key(&distribution.per_token_balance.token, distribution.time);
-
-    // Update distributions
-    token_distributions().save(deps.storage, distribution_key.as_str(), &distribution)?;
+    // Update total cumulative rewards
+    let mut total_rewards = TOTAL_REWARDS.load(deps.storage)?;
+    let curr_rewards_for_token = total_rewards
+        .iter_mut()
+        .find(|balance| balance.token == token_addr);
+    match curr_rewards_for_token {
+        Some(balance) => {
+            balance.amount += amount_per_stake;
+        }
+        None => {
+            total_rewards.push(TokenBalance {
+                token: token_addr.clone(),
+                amount: amount_per_stake,
+            });
+        }
+    }
+    TOTAL_REWARDS.save(deps.storage, &total_rewards)?;
 
     Ok(Response::new())
 }
@@ -147,15 +155,19 @@ pub fn execute_withdraw_rewards(
         return Err(Unauthorized {});
     }
 
-    // Get rewards as send messages
-    let send_reward_msgs: Vec<CosmosMsg> = msgs_from_rewards(
-        &reward_map(deps.as_ref(), stake.last_claim_time)?,
-        &stake.owner,
-    )?;
+    // Calculate claimable rewards
+    let current_rewards = TOTAL_REWARDS.load(deps.storage)?;
+    let claimable_rewards = balance_map_diff(
+        &balance_vec_to_map(&current_rewards),
+        &balance_vec_to_map(&stake.last_reward_snapshot),
+    );
 
-    // Update the stake
-    stake.last_claim_time = current_time;
+    // Update last reward snapshot
+    stake.last_reward_snapshot = current_rewards.clone();
     staked_nfts().save(deps.storage, token_id, &stake)?;
+
+    // Get rewards as send messages
+    let send_reward_msgs: Vec<CosmosMsg> = msgs_from_rewards(&claimable_rewards, &stake.owner)?;
 
     Ok(Response::new().add_messages(send_reward_msgs))
 }
@@ -193,10 +205,12 @@ pub fn execute_withdraw_nft(
     NUM_STAKED.update(deps.storage, |num: u64| -> StdResult<u64> { Ok(num - 1) })?;
 
     // Transfer remaining rewards to owner of staking contract
-    withdraw_msgs.extend(msgs_from_rewards(
-        &reward_map(deps.as_ref(), stake.last_claim_time)?,
-        &cfg.owner,
-    )?);
+    let total_rewards = TOTAL_REWARDS.load(deps.storage)?;
+    let remaining_rewards = balance_map_diff(
+        &balance_vec_to_map(&total_rewards),
+        &balance_vec_to_map(&stake.last_reward_snapshot),
+    );
+    withdraw_msgs.extend(msgs_from_rewards(&remaining_rewards, &cfg.owner)?);
 
     Ok(Response::new().add_messages(withdraw_msgs))
 }

@@ -10,10 +10,11 @@ use crate::execute::{
     execute_withdraw_rewards, execute_withdraw_tokens,
 };
 use crate::query::{
-    query_all_staked, query_config, query_distribution, query_distributions, query_num_staked,
-    query_stake_by_addr, query_stake_by_token,
+    query_all_staked, query_config, query_num_staked, query_stake_by_addr, query_stake_by_token,
+    query_total_rewards,
 };
-use crate::state::{CONFIG, NUM_STAKED};
+use crate::state::{CONFIG, NUM_STAKED, TOTAL_REWARDS};
+use crate::util::validate_tokens;
 
 #[cfg_attr(not(feature = "library"), entry_point)]
 pub fn instantiate(
@@ -22,15 +23,21 @@ pub fn instantiate(
     info: MessageInfo,
     msg: StakingInstantiateMsg,
 ) -> Result<Response, ContractError> {
+    validate_tokens(deps.as_ref(), &msg.whitelisted_tokens)?;
+
     let cfg = StakingConfig {
         owner: info.sender.to_string(),
-        nft_contract: msg.nft_contract.clone(),
+        nft_contract: deps.api.addr_validate(&msg.nft_contract)?.to_string(),
         whitelisted_tokens: msg.whitelisted_tokens.clone(),
-        trusted_token_sender: msg.trusted_token_sender.clone(),
+        trusted_token_sender: deps
+            .api
+            .addr_validate(&msg.trusted_token_sender)?
+            .to_string(),
         reward_withdrawal_timeout: msg.reward_withdrawal_timeout,
     };
     CONFIG.save(deps.storage, &cfg)?;
     NUM_STAKED.save(deps.storage, &0)?;
+    TOTAL_REWARDS.save(deps.storage, &vec![])?;
 
     Ok(Response::new())
 }
@@ -88,14 +95,7 @@ pub fn query(deps: Deps, env: Env, msg: StakingQueryMsg) -> StdResult<Binary> {
             limit,
         } => query_all_staked(deps, env, &start_after_token, &limit),
         StakingQueryMsg::NumStaked {} => query_num_staked(deps, env),
-        StakingQueryMsg::Distribution { time, token_addr } => {
-            query_distribution(deps, env, &token_addr, time)
-        }
-        StakingQueryMsg::Distributions {
-            start_after_time,
-            limit,
-            token_addr,
-        } => query_distributions(deps, env, &token_addr, &start_after_time, &limit),
+        StakingQueryMsg::TotalRewards {} => query_total_rewards(deps, env),
     }
 }
 
