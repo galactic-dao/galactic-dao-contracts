@@ -1,49 +1,26 @@
-
-use crate::state::{token_distributions};
-use cosmwasm_std::{
-    to_binary, CosmosMsg, Deps, Order, StdResult, Uint128, WasmMsg,
-};
-use cw20::Cw20ExecuteMsg;
-use cw_storage_plus::{Bound, PrimaryKey, U64Key};
-use galacticdao_nft_staking_protocol::staking::{
-    StakedNft, StakedNftState, TokenBalance,
-};
 use std::collections::HashMap;
 
-/// Computes rewards in a hashmap, starting at a given time in seconds
-/// cw20_token -> amount where amount > 0
-pub fn reward_map(deps: Deps, start_time: u64) -> StdResult<HashMap<String, Uint128>> {
-    let mut reward_map: HashMap<String, Uint128> = HashMap::new();
+use cosmwasm_std::{to_binary, CosmosMsg, Deps, StdResult, Uint128, WasmMsg};
+use cw20::Cw20ExecuteMsg;
 
-    let zero = Uint128::zero();
-    token_distributions()
-        .idx
-        .time
-        .range(
-            deps.storage,
-            Some(Bound::inclusive(
-                (U64Key::new(start_time), vec![]).joined_key(),
-            )),
-            None,
-            Order::Ascending,
-        )
-        .for_each(|item| {
-            let distribution = item.unwrap().1;
-            // Extra check just in case
-            if distribution.time >= start_time && distribution.per_token_balance.amount.gt(&zero) {
-                // Add to hashmap
-                let reward_for_token = reward_map
-                    .entry(distribution.per_token_balance.token)
-                    .or_insert(Uint128::zero());
-                *reward_for_token += distribution.per_token_balance.amount;
-            }
-        });
+use galacticdao_nft_staking_protocol::staking::{StakedNft, StakedNftState, TokenBalance};
 
-    Ok(reward_map)
+/// Maps an array of token balances into a hashmap of token_id -> balance
+pub fn balance_vec_to_map(balances: &Vec<TokenBalance>) -> HashMap<String, Uint128> {
+    balances.iter().fold(
+        HashMap::<String, Uint128>::new(),
+        |mut balances, balance| {
+            balances
+                .entry(balance.token.clone())
+                .and_modify(|bal| *bal += balance.amount)
+                .or_insert(balance.amount);
+            balances
+        },
+    )
 }
 
-/// Takes a reward hashmap and creates a vec of token balances
-pub fn vec_from_rewards(rewards_map: &HashMap<String, Uint128>) -> Vec<TokenBalance> {
+/// Takes a balance hashmap of token_id -> amount and creates a vec of token balances
+pub fn balance_map_to_vec(rewards_map: &HashMap<String, Uint128>) -> Vec<TokenBalance> {
     rewards_map
         .iter()
         .map(|(cw20_token, amount)| TokenBalance {
@@ -53,6 +30,21 @@ pub fn vec_from_rewards(rewards_map: &HashMap<String, Uint128>) -> Vec<TokenBala
         .collect()
 }
 
+/// Computes balance diffs between `old` and `new`
+pub fn balance_map_diff(
+    new: &HashMap<String, Uint128>,
+    old: &HashMap<String, Uint128>,
+) -> HashMap<String, Uint128> {
+    new.iter().fold(
+        HashMap::<String, Uint128>::new(),
+        |mut diff, (token, amount)| {
+            let old_amount = *old.get(token).unwrap_or(&Uint128::zero());
+            diff.insert(token.clone(), *amount - old_amount);
+            diff
+        },
+    )
+}
+
 /// Takes a reward hashmap and creates the CosmosMsgs for sending the tokens
 pub fn msgs_from_rewards(
     rewards_map: &HashMap<String, Uint128>,
@@ -60,17 +52,21 @@ pub fn msgs_from_rewards(
 ) -> StdResult<Vec<CosmosMsg>> {
     let msgs = rewards_map
         .iter()
-        .map(|(cw20_token, amount)| {
+        .filter_map(|(cw20_token, amount)| {
+            if amount.is_zero() {
+                return None;
+            }
+
             let transfer_msg = Cw20ExecuteMsg::Transfer {
                 recipient: recipient.clone(),
                 amount: amount.clone(),
             };
 
-            CosmosMsg::Wasm(WasmMsg::Execute {
+            return Some(CosmosMsg::Wasm(WasmMsg::Execute {
                 contract_addr: cw20_token.clone(),
                 msg: to_binary(&transfer_msg).unwrap(),
                 funds: vec![],
-            })
+            }));
         })
         .collect();
 
@@ -78,11 +74,39 @@ pub fn msgs_from_rewards(
 }
 
 /// Util fn to get StakedNftState from a staked NFT
-pub fn query_stake_state(deps: Deps, stake: &StakedNft) -> StdResult<StakedNftState> {
-    let rewards = vec_from_rewards(&reward_map(deps, stake.last_claim_time)?);
+pub fn query_stake_state(
+    _deps: Deps,
+    stake: &StakedNft,
+    total_rewards: &Vec<TokenBalance>,
+) -> StdResult<StakedNftState> {
+    let total_rewards_map = balance_vec_to_map(total_rewards);
+
+    let unclaimed_map = balance_map_diff(
+        &total_rewards_map,
+        &balance_vec_to_map(&stake.last_reward_snapshot),
+    );
+    let total_map = balance_map_diff(
+        &total_rewards_map,
+        &balance_vec_to_map(&stake.beginning_reward_snapshot),
+    );
 
     Ok(StakedNftState {
         stake: stake.clone(),
-        unclaimed_rewards: rewards,
+        unclaimed_rewards: balance_map_to_vec(&unclaimed_map),
+        total_rewards: balance_map_to_vec(&total_map),
     })
+}
+
+/// Validates token addrs
+pub fn validate_tokens(deps: Deps, tokens: &Vec<String>) -> StdResult<()> {
+    for token in tokens {
+        match deps.api.addr_validate(token.as_str()) {
+            Err(err) => {
+                return Err(err);
+            }
+            _ => {}
+        }
+    }
+
+    Ok(())
 }

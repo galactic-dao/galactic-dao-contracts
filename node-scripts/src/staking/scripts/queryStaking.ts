@@ -1,40 +1,26 @@
 import { getLogger } from '../../common/logger';
 import queryContract from '../../utils/queryContract';
 import { getLCDClient } from '../../utils/lcdClient';
-import {
-  getStakingQueryAllStakedMsg,
-  getStakingQueryConfigMsg,
-  getStakingQueryDistributionsMsg,
-  getStakingQueryNumStakedMsg,
-} from '../bindings/messages';
 import { nftStakingContractAddrs } from '../constants';
 import { environment } from '../../utils/environment';
-import {
-  StakingQueryAllStakedMessage,
-  StakingQueryDistributionsMessage,
-} from '../bindings/types';
+import { getStakingQueryMsg } from '../bindings/messages';
+import { StakingQueryAllStakedParams } from '../bindings/models';
 
 /*
 Query msgs
  */
 
-const CONFIG_QUERY_MSG = getStakingQueryConfigMsg();
+const CONFIG_QUERY_MSG = getStakingQueryMsg('config', {});
 
-const NUM_STAKED_QUERY_MSG = getStakingQueryNumStakedMsg();
+const NUM_STAKED_QUERY_MSG = getStakingQueryMsg('num_staked', {});
 
-const _allStakedParams: StakingQueryAllStakedMessage = {
+const _allStakedParams: StakingQueryAllStakedParams = {
   start_after_token: undefined,
   limit: undefined,
 };
-const ALL_STAKED_QUERY_MSG = getStakingQueryAllStakedMsg(_allStakedParams);
+const ALL_STAKED_QUERY_MSG = getStakingQueryMsg('all_staked', _allStakedParams);
 
-const _allDistributionsParams: StakingQueryDistributionsMessage = {
-  start_after_time: undefined,
-  limit: undefined,
-};
-const ALL_DISTRIBUTIONS_QUERY_MSG = getStakingQueryDistributionsMsg(
-  _allDistributionsParams
-);
+const TOTAL_REWARDS_QUERY_MSG = getStakingQueryMsg('total_rewards', {});
 
 const logger = getLogger('queryStaking');
 

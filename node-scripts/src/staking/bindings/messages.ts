@@ -1,112 +1,36 @@
 import {
-  StakingCw20ExecuteSendMessage,
-  StakingExecuteChangeConfigMessage,
-  StakingExecuteOwnerWithdrawTokensMessage,
-  StakingExecuteWithdrawNftMessage,
-  StakingExecuteWithdrawRewardsMessage,
-  StakingQueryAllStakedMessage,
-  StakingQueryDistributionMessage,
-  StakingQueryDistributionsMessage,
-  StakingQueryStakedByAddrMessage,
-  StakingQueryStakedByTokenIdMessage,
-} from './types';
+  StakingCw20ExecuteSendParams,
+  StakingExecuteParamsByType,
+  StakingQueryParamsByType,
+} from './models';
 
-/*
-Execute
- */
-export function getStakingExecuteChangeConfigMsg(
-  params: StakingExecuteChangeConfigMessage
-) {
+export type StakingExecuteMsgType = keyof StakingExecuteParamsByType;
+
+export function getStakingExecuteMsg<TMsgType extends StakingExecuteMsgType>(
+  type: TMsgType,
+  params: StakingExecuteParamsByType[TMsgType]
+): Record<string, StakingExecuteParamsByType[TMsgType]> {
   return {
-    change_config: params,
+    [type]: params,
   };
 }
 
-export function getStakingExecuteWithdrawNftMsg(
-  params: StakingExecuteWithdrawNftMessage
-) {
+export type StakingQueryMsgType = keyof StakingQueryParamsByType;
+
+export function getStakingQueryMsg<TMsgType extends StakingQueryMsgType>(
+  type: TMsgType,
+  params: StakingQueryParamsByType[TMsgType]
+): Record<string, StakingQueryParamsByType[TMsgType]> {
   return {
-    withdraw_nft: params,
+    [type]: params,
   };
 }
 
-export function getStakingExecuteWithdrawRewardsMsg(
-  params: StakingExecuteWithdrawRewardsMessage
-) {
-  return {
-    withdraw_rewards: params,
-  };
-}
-
-export function getStakingExecuteOwnerWithdrawTokensMsg(
-  params: StakingExecuteOwnerWithdrawTokensMessage
-) {
-  return {
-    owner_withdraw_tokens: params,
-  };
-}
-
-// From CW20 for distribution
+// Util for sending CW20 token
 export function getStakingCw20SendTokenMsg(
-  params: StakingCw20ExecuteSendMessage
+  params: StakingCw20ExecuteSendParams
 ) {
   return {
     send: params,
-  };
-}
-
-/*
-Query
- */
-
-export function getStakingQueryConfigMsg() {
-  return {
-    config: {},
-  };
-}
-
-export function getStakingQueryStakedByAddrMsg(
-  params: StakingQueryStakedByAddrMessage
-) {
-  return {
-    staked_by_addr: params,
-  };
-}
-
-export function getStakingQueryStakedByTokenMsg(
-  params: StakingQueryStakedByTokenIdMessage
-) {
-  return {
-    staked_by_token: params,
-  };
-}
-
-export function getStakingQueryAllStakedMsg(
-  params: StakingQueryAllStakedMessage
-) {
-  return {
-    all_staked: params,
-  };
-}
-
-export function getStakingQueryNumStakedMsg() {
-  return {
-    num_staked: {},
-  };
-}
-
-export function getStakingQueryDistributionMsg(
-  params: StakingQueryDistributionMessage
-) {
-  return {
-    distribution: params,
-  };
-}
-
-export function getStakingQueryDistributionsMsg(
-  params: StakingQueryDistributionsMessage
-) {
-  return {
-    distributions: params,
   };
 }

@@ -3,7 +3,7 @@ import { nftStakingContractAddrs } from '../constants';
 import { environment } from '../../utils/environment';
 import { getWallet } from '../../utils/wallet';
 import executeContract from '../../utils/executeContract';
-import { getStakingExecuteWithdrawNftMsg } from '../bindings/messages';
+import { getStakingExecuteMsg } from '../bindings/messages';
 
 const logger = getLogger('withdrawNft');
 
@@ -14,7 +14,7 @@ async function withdrawNft() {
     contractAddress: nftStakingContractAddrs[environment.chainType],
     operations: [
       {
-        message: getStakingExecuteWithdrawNftMsg({
+        message: getStakingExecuteMsg('withdraw_nft', {
           token_id: '100633496447795476300046186918197367338',
         }),
       },

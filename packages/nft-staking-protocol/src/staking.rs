@@ -32,16 +32,11 @@ pub struct StakedNft {
     pub can_withdraw_rewards_time: u64,
     /// Owner of the NFT
     pub owner: String,
-    /// UNIX seconds of last reward claim time, or time_deposited if no rewards have been claimed
-    pub last_claim_time: u64,
-}
-
-#[derive(Serialize, Deserialize, Clone, Debug, PartialEq, JsonSchema)]
-pub struct TokenDistribution {
-    /// Time of distribution
-    pub time: u64,
-    /// The balance allocated to each staked NFT at the time of distribution
-    pub per_token_balance: TokenBalance,
+    /// Snapshot of rewards when the NFT was staked, used to calculated total rewards accumulated
+    pub beginning_reward_snapshot: Vec<TokenBalance>,
+    /// Last snapshot of total cumulative staking rewards (at time of last claim OR time of stake)
+    /// Used to calculate eligible rewards for next claim
+    pub last_reward_snapshot: Vec<TokenBalance>,
 }
 
 #[derive(Serialize, Deserialize, Clone, Debug, PartialEq, JsonSchema)]
@@ -59,6 +54,8 @@ pub struct StakedNftState {
     pub stake: StakedNft,
     /// Rewards that have yet to be claimed
     pub unclaimed_rewards: Vec<TokenBalance>,
+    /// Total rewards (including unclaimed) accumulated since initial stake
+    pub total_rewards: Vec<TokenBalance>,
 }
 
 /*
@@ -110,7 +107,9 @@ pub enum StakingQueryMsg {
         limit: Option<u32>,
     },
     /// Queries staked NFT state by token ID
-    StakedByToken { token_id: String },
+    StakedByToken {
+        token_id: String,
+    },
     /// Queries all staked NFT states, paginated by token ID
     AllStaked {
         start_after_token: Option<String>,
@@ -118,14 +117,8 @@ pub enum StakingQueryMsg {
     },
     /// Returns number of staked NFTs
     NumStaked {},
-    /// Returns a single distribution, if found
-    Distribution { time: u64, token_addr: String },
-    /// Returns past distribution history, capped at 32
-    Distributions {
-        token_addr: Option<String>,
-        start_after_time: Option<u64>,
-        limit: Option<u32>,
-    },
+    // Total rewards since the beginning of time
+    TotalRewards {},
 }
 
 #[derive(Serialize, Deserialize, Clone, Debug, PartialEq, JsonSchema)]

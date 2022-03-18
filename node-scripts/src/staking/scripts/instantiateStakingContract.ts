@@ -1,18 +1,18 @@
-import { StakingInstantiateMessage } from '../bindings/types';
 import { getLogger } from '../../common/logger';
 import { nftStakingCodeIds } from '../constants';
 import { environment } from '../../utils/environment';
 import { getWallet } from '../../utils/wallet';
 import instantiateContract from '../../utils/instantiateContract';
+import { StakingInstantiateParams } from '../bindings/models';
 
-const INSTANTIATE_MSG: StakingInstantiateMessage = {
+const INSTANTIATE_MSG: StakingInstantiateParams = {
   // GP testnet contract
   nft_contract: 'terra1pk646xtdgwym74k46cajttdu6uvypa5jw5wa3j',
   // 100 min
   reward_withdrawal_timeout: 60 * 100,
   // Royalties
   trusted_token_sender: 'terra1qzpww3mw0t9aep0x6ksf7nfsvhk3tjy7xt65g7',
-  whitelisted_tokens: ['terra15mc3pc999xn5j9e59z8lhz8hg2tavdfhze0f85'],
+  whitelisted_tokens: ['terra1p2z4y8gjceuyrlqdkgmmt9zyg45qdsrvltv3gn'],
 };
 
 const logger = getLogger('instantiateStakingContract');

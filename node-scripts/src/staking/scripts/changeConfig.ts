@@ -3,7 +3,7 @@ import { nftStakingContractAddrs } from '../constants';
 import { environment } from '../../utils/environment';
 import { getWallet } from '../../utils/wallet';
 import executeContract from '../../utils/executeContract';
-import { getStakingExecuteChangeConfigMsg } from '../bindings/messages';
+import { getStakingExecuteMsg } from '../bindings/messages';
 
 const logger = getLogger('changeConfig');
 
@@ -14,12 +14,13 @@ async function changeConfig() {
     contractAddress: nftStakingContractAddrs[environment.chainType],
     operations: [
       {
-        message: getStakingExecuteChangeConfigMsg({
+        message: getStakingExecuteMsg('change_config', {
           reward_withdrawal_timeout: null,
           whitelisted_tokens: [
-            'terra15mc3pc999xn5j9e59z8lhz8hg2tavdfhze0f85',
-            'terra13zcjjgwfawzkx62acgxfmmgwu7704r36wms5uv',
+            // GGOLD
             'terra1p2z4y8gjceuyrlqdkgmmt9zyg45qdsrvltv3gn',
+            // GPUNK
+            'terra16mx96nqfded5ecml4qpq5ww53wa9985hsgv0fz',
           ],
           trusted_token_sender: null,
         }),
