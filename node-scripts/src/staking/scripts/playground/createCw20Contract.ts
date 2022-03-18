@@ -29,8 +29,8 @@ export async function createCw20Contract() {
   logger.info('Creating CW20 with minter', minterAddress);
 
   const initMessage: Record<string, any> = {
-    name: 'Galactic Gold',
-    symbol: 'GGLD',
+    name: 'GP Token',
+    symbol: 'GPUNK',
     decimals: 6,
     initial_balances: Object.keys(ADDR_TO_BALANCE).map((addr) => {
       const balance = ADDR_TO_BALANCE[addr];

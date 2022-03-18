@@ -3,14 +3,14 @@ import { nftStakingContractAddrs } from '../constants';
 import { environment } from '../../utils/environment';
 import { getWallet } from '../../utils/wallet';
 import executeContract from '../../utils/executeContract';
-import { getStakingCw20SendTokenMsg } from '../bindings/messages';
 import { convertAmountToMicroDenom } from '../../utils/misc';
+import { getStakingCw20SendTokenMsg } from '../bindings/messages';
 
 const LUART_TOKEN_ADDR = 'terra15mc3pc999xn5j9e59z8lhz8hg2tavdfhze0f85';
-const GPUNK_TOKEN_ADDR = 'terra13zcjjgwfawzkx62acgxfmmgwu7704r36wms5uv';
+const GPUNK_TOKEN_ADDR = 'terra16mx96nqfded5ecml4qpq5ww53wa9985hsgv0fz';
 const GGOLD_TOKEN_ADDR = 'terra1p2z4y8gjceuyrlqdkgmmt9zyg45qdsrvltv3gn';
 
-const AMOUNT = convertAmountToMicroDenom(100);
+const AMOUNT = convertAmountToMicroDenom(5);
 
 const logger = getLogger('distributeTokens');
 
@@ -18,7 +18,7 @@ async function distributeTokens() {
   const wallet = getWallet(environment.royaltiesWalletMnemonic);
 
   await executeContract({
-    contractAddress: GGOLD_TOKEN_ADDR,
+    contractAddress: GPUNK_TOKEN_ADDR,
     operations: [
       {
         message: getStakingCw20SendTokenMsg({
