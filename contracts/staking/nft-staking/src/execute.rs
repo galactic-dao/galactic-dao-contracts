@@ -35,7 +35,7 @@ pub fn execute_change_config(
     CONFIG.save(
         deps.storage,
         &StakingConfig {
-            whitelisted_tokens,
+            whitelisted_tokens: whitelisted_tokens.clone(),
             trusted_token_sender: trusted_token_sender.unwrap_or(cfg.trusted_token_sender.clone()),
             reward_withdrawal_timeout: reward_withdrawal_timeout
                 .unwrap_or(cfg.reward_withdrawal_timeout),
@@ -43,7 +43,15 @@ pub fn execute_change_config(
         },
     )?;
 
-    Ok(Response::new())
+    Ok(Response::new().add_attributes(vec![
+        ("action", "change_config"),
+        ("whitelisted_tokens", &whitelisted_tokens.join(",")),
+        ("trusted_token_sender", &cfg.trusted_token_sender),
+        (
+            "reward_withdrawal_timeout",
+            &cfg.reward_withdrawal_timeout.to_string(),
+        ),
+    ]))
 }
 
 /// Handle receiving an NFT (i.e. staking)
@@ -71,14 +79,18 @@ pub fn execute_receive_nft(
             token_id: token_id.clone(),
             time_deposited: stake_time,
             can_withdraw_rewards_time: stake_time + cfg.reward_withdrawal_timeout,
-            owner: nft_owner,
+            owner: nft_owner.clone(),
             beginning_reward_snapshot: curr_rewards.clone(),
             last_reward_snapshot: curr_rewards.clone(),
         },
     )?;
     NUM_STAKED.update(deps.storage, |num: u64| -> StdResult<u64> { Ok(num + 1) })?;
 
-    Ok(Response::new())
+    Ok(Response::new().add_attributes(vec![
+        ("action", "receive_nft"),
+        ("token_id", &token_id),
+        ("nft_owner", &nft_owner),
+    ]))
 }
 
 /// Handle receiving a CW20 token
@@ -131,7 +143,14 @@ pub fn execute_receive_token(
     }
     TOTAL_REWARDS.save(deps.storage, &total_rewards)?;
 
-    Ok(Response::new())
+    Ok(Response::new().add_attributes(vec![
+        ("action", "receive_token"),
+        ("token_addr", &token_addr),
+        ("token_sender", &token_sender),
+        ("total_amount", &amount.to_string()),
+        ("amount_per_stake", &amount_per_stake.to_string()),
+        ("num_staked", &num_staked.to_string()),
+    ]))
 }
 
 /// Withdraw rewards for the staked NFT
@@ -169,7 +188,12 @@ pub fn execute_withdraw_rewards(
     // Get rewards as send messages
     let send_reward_msgs: Vec<CosmosMsg> = msgs_from_rewards(&claimable_rewards, &stake.owner)?;
 
-    Ok(Response::new().add_messages(send_reward_msgs))
+    Ok(Response::new()
+        .add_messages(send_reward_msgs)
+        .add_attributes(vec![
+            ("action", "withdraw_rewards"),
+            ("token_id", &token_id),
+        ]))
 }
 
 /// Withdraw the NFT from staking, callable by either the stake owner OR the owner of staking contract
@@ -212,7 +236,9 @@ pub fn execute_withdraw_nft(
     );
     withdraw_msgs.extend(msgs_from_rewards(&remaining_rewards, &cfg.owner)?);
 
-    Ok(Response::new().add_messages(withdraw_msgs))
+    Ok(Response::new()
+        .add_messages(withdraw_msgs)
+        .add_attributes(vec![("action", "withdraw_nft"), ("token_id", &token_id)]))
 }
 
 /// Withdraw ARBITRARY tokens from this contract. Callable only by the owner
@@ -229,14 +255,14 @@ pub fn execute_withdraw_tokens(
         return Err(ContractError::Unauthorized {});
     }
 
-    Ok(
-        Response::new().add_message(CosmosMsg::Wasm(WasmMsg::Execute {
+    Ok(Response::new()
+        .add_message(CosmosMsg::Wasm(WasmMsg::Execute {
             contract_addr: balance.token.clone(),
             msg: to_binary(&Cw20ExecuteMsg::Transfer {
                 recipient: cfg.owner.clone(),
                 amount: balance.amount.clone(),
             })?,
             funds: vec![],
-        })),
-    )
+        }))
+        .add_attributes(vec![("action", "owner_withdraw_tokens")]))
 }
