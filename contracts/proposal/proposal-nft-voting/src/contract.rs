@@ -1,5 +1,6 @@
 use cosmwasm_std::{
-    attr, entry_point, to_binary, Binary, Deps, DepsMut, Env, MessageInfo, Response, StdResult,
+    attr, entry_point, to_binary, Binary, Decimal, Deps, DepsMut, Env, MessageInfo, Response,
+    StdResult,
 };
 use cw_storage_plus::U16Key;
 
@@ -19,17 +20,32 @@ pub fn instantiate(
     info: MessageInfo,
     msg: ProposalInstantiateMsg,
 ) -> Result<Response, ContractError> {
+    // Check config
+    if msg.config.quorum_fraction.lt(&Decimal::zero())
+        || msg.config.quorum_fraction.gt(&Decimal::one())
+    {
+        return Err(ContractError::InvalidConfig {});
+    }
+
+    if msg.config.options.is_empty() {
+        return Err(ContractError::InvalidConfig {});
+    }
+
     CONFIG.save(deps.storage, &msg.config)?;
     STATE.save(
         deps.storage,
         &ProposalState {
             creator: info.sender.to_string(),
+            proposer: msg.proposer.to_string(),
             is_revoked: false,
         },
     )?;
 
     // Initialize tally to 0's for given options
     for option in msg.config.options.iter() {
+        if TALLY.has(deps.storage, U16Key::from(option.id)) {
+            return Err(ContractError::InvalidConfig {});
+        }
         TALLY.save(deps.storage, U16Key::from(option.id), &0u16)?;
     }
 
@@ -113,13 +129,11 @@ pub fn execute_revoke(
     _env: Env,
     info: MessageInfo,
 ) -> Result<Response, ContractError> {
-    let cfg = CONFIG.load(deps.storage)?;
+    let mut state = STATE.load(deps.storage)?;
 
-    if info.sender.as_str() != cfg.proposer.as_str() {
+    if info.sender.as_str() != state.proposer.as_str() {
         return Err(ContractError::Unauthorized {});
     }
-
-    let mut state = STATE.load(deps.storage)?;
     state.is_revoked = true;
     STATE.save(deps.storage, &state)?;
 
@@ -187,8 +201,11 @@ mod tests {
 
         let nft_contract = "contract";
         let proposal_uri = "proposal_uri";
+        let title = "title";
         let creator = "creator";
         let proposer = "proposer";
+        let quorum = 0.1;
+
         let options = vec![
             ProposalOption {
                 id: 0,
@@ -204,11 +221,13 @@ mod tests {
         let instantiate_msg = ProposalInstantiateMsg {
             config: ProposalConfig {
                 nft_contract: nft_contract.to_string(),
+                title: title.to_string(),
                 proposal_uri: proposal_uri.to_string(),
-                proposer: proposer.to_string(),
                 options: options.clone(),
                 close_time: 100,
+                quorum_fraction: quorum,
             },
+            proposer: proposer.to_string(),
         };
         let info = mock_info(&creator, &[]);
         instantiate(deps.as_mut(), mock_env(), info, instantiate_msg).unwrap();
@@ -218,13 +237,15 @@ mod tests {
             state: ProposalState {
                 creator: creator.to_string(),
                 is_revoked: false,
+                proposer: proposer.to_string(),
             },
             config: ProposalConfig {
                 nft_contract: nft_contract.to_string(),
+                title: title.to_string(),
                 proposal_uri: proposal_uri.to_string(),
-                proposer: proposer.to_string(),
                 options: options.clone(),
                 close_time: 100,
+                quorum_fraction: quorum,
             },
             tally: options
                 .iter()

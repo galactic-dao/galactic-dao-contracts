@@ -11,7 +11,7 @@ import {
 import { convertAmountToMicroDenom, delay } from '../../utils/misc';
 import { ProposalOption } from '../proposalTypes';
 import { Coins } from '@terra-money/terra.js/dist/core/Coins';
-import { getCreatedProposalAddress } from '../utils';
+import { getCreatedProposalAddress } from '../bindings/utils';
 import {
   executeCreateProposal,
   executeModifyProposalFactoryConfig,
