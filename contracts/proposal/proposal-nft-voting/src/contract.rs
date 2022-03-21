@@ -126,14 +126,19 @@ pub fn execute_vote(
 
 pub fn execute_revoke(
     deps: DepsMut,
-    _env: Env,
+    env: Env,
     info: MessageInfo,
 ) -> Result<Response, ContractError> {
     let mut state = STATE.load(deps.storage)?;
+    let cfg = CONFIG.load(deps.storage)?;
 
     if info.sender.as_str() != state.proposer.as_str() {
         return Err(ContractError::Unauthorized {});
     }
+    if cfg.close_time < env.block.time.seconds() {
+        return Err(ContractError::Closed {});
+    }
+
     state.is_revoked = true;
     STATE.save(deps.storage, &state)?;
 
@@ -182,81 +187,4 @@ pub fn query_votes(deps: Deps, token_ids: Vec<String>) -> StdResult<VotesQueryRe
 #[cfg_attr(not(feature = "library"), entry_point)]
 pub fn migrate(_deps: DepsMut, _env: Env, _msg: MigrateMsg) -> StdResult<Response> {
     Ok(Response::default())
-}
-
-#[cfg(test)]
-mod tests {
-    use cosmwasm_std::testing::{mock_dependencies, mock_env, mock_info};
-
-    use galacticdao_nft_voting_protocol::proposal::{
-        ProposalConfig, ProposalInstantiateMsg, ProposalOption, ProposalOptionStatus,
-        ProposalState, ProposalStatusResponse,
-    };
-
-    use crate::contract::{instantiate, query_status};
-
-    #[test]
-    fn instantiate_and_query_status() {
-        let mut deps = mock_dependencies(&[]);
-
-        let nft_contract = "contract";
-        let proposal_uri = "proposal_uri";
-        let title = "title";
-        let creator = "creator";
-        let proposer = "proposer";
-        let quorum = 0.1;
-
-        let options = vec![
-            ProposalOption {
-                id: 0,
-                name: "0".to_string(),
-            },
-            ProposalOption {
-                id: 0,
-                name: "1".to_string(),
-            },
-        ];
-
-        // Instantiate contract
-        let instantiate_msg = ProposalInstantiateMsg {
-            config: ProposalConfig {
-                nft_contract: nft_contract.to_string(),
-                title: title.to_string(),
-                proposal_uri: proposal_uri.to_string(),
-                options: options.clone(),
-                close_time: 100,
-                quorum_fraction: quorum,
-            },
-            proposer: proposer.to_string(),
-        };
-        let info = mock_info(&creator, &[]);
-        instantiate(deps.as_mut(), mock_env(), info, instantiate_msg).unwrap();
-
-        // Ensure expected initial state
-        let expected = ProposalStatusResponse {
-            state: ProposalState {
-                creator: creator.to_string(),
-                is_revoked: false,
-                proposer: proposer.to_string(),
-            },
-            config: ProposalConfig {
-                nft_contract: nft_contract.to_string(),
-                title: title.to_string(),
-                proposal_uri: proposal_uri.to_string(),
-                options: options.clone(),
-                close_time: 100,
-                quorum_fraction: quorum,
-            },
-            tally: options
-                .iter()
-                .map(|option| ProposalOptionStatus {
-                    id: option.id,
-                    votes: 0,
-                })
-                .collect(),
-        };
-        assert_eq!(query_status(deps.as_ref()).unwrap(), expected);
-    }
-
-    // TODO: More testing
 }
