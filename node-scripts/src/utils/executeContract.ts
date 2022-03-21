@@ -24,7 +24,7 @@ const executeContract = async ({
   operations,
   wallet,
 }: ExecuteContractVariables): Promise<BlockTxBroadcastResult> => {
-  logger.debug(
+  logger.warn(
     'Execute contract with params',
     JSON.stringify({
       contractAddress: contractAddress,

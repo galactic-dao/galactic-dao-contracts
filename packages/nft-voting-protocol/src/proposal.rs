@@ -1,3 +1,4 @@
+use cosmwasm_std::Decimal;
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
 
@@ -25,20 +26,24 @@ pub struct ProposalOptionStatus {
 pub struct ProposalConfig {
     /// The NFT contract associated with NFT voting
     pub nft_contract: String,
+    /// Title for proposal
+    pub title: String,
     /// A URI with details for the proposal
     pub proposal_uri: String,
     /// The allowed options for voting
     pub options: Vec<ProposalOption>,
     /// The time at which the proposal closes, in seconds
     pub close_time: u64,
-    /// Address that initiated the proposal
-    pub proposer: String,
+    /// Quorum in fractional form (<=1) - not used for any computation but for immutability
+    pub quorum_fraction: Decimal,
 }
 
 #[derive(Serialize, Deserialize, Clone, Debug, PartialEq, JsonSchema)]
 pub struct ProposalState {
     /// Address of the factory contract that created this proposal
     pub creator: String,
+    /// Address that initiated the proposal by calling the factory
+    pub proposer: String,
     /// Whether the proposal has been revoked by the proposer
     pub is_revoked: bool,
 }
@@ -71,6 +76,8 @@ Messages
 pub struct ProposalInstantiateMsg {
     /// Config associated with the proposal
     pub config: ProposalConfig,
+    /// Initiator of the proposal
+    pub proposer: String,
 }
 
 #[derive(Serialize, Deserialize, Clone, Debug, PartialEq, JsonSchema)]

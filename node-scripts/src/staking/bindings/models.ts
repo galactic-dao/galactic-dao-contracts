@@ -1,5 +1,3 @@
-/* eslint-disable @typescript-eslint/no-empty-interface */
-
 type EmptyParams = Record<string, never>;
 
 /**
@@ -41,6 +39,7 @@ export interface StakedNftState {
 /**
  * Instantiate
  */
+
 export interface StakingInstantiateParams {
   nft_contract: string;
   whitelisted_tokens: string[];
@@ -89,26 +88,55 @@ export interface StakingExecuteParamsByType {
  * Query
  */
 
+type ContractQuery<TQueryParams, TQueryResp> = {
+  query: TQueryParams;
+  response: TQueryResp;
+};
+
+export type StakingConfigQuery = ContractQuery<EmptyParams, StakingConfig>;
+
+export type StakingNumStakedQuery = ContractQuery<EmptyParams, number>;
+
+export type StakingTotalRewardsQuery = ContractQuery<
+  EmptyParams,
+  TokenBalance[]
+>;
+
 export interface StakingQueryStakedByAddrParams {
   address: string;
   start_after_token?: string;
   limit?: number;
 }
 
+export type StakingStakedByAddrQuery = ContractQuery<
+  StakingQueryStakedByAddrParams,
+  StakedNftState[]
+>;
+
 export interface StakingQueryStakedByTokenParams {
   address: string;
 }
+
+export type StakingStakedByTokenQuery = ContractQuery<
+  StakingQueryStakedByTokenParams,
+  StakedNftState | null
+>;
 
 export interface StakingQueryAllStakedParams {
   start_after_token?: string;
   limit?: number;
 }
 
-export interface StakingQueryParamsByType {
-  config: EmptyParams;
-  staked_by_addr: StakingQueryStakedByAddrParams;
-  staked_by_token: StakingQueryStakedByTokenParams;
-  all_staked: StakingQueryAllStakedParams;
-  num_staked: EmptyParams;
-  total_rewards: EmptyParams;
+export type StakingAllStakedQuery = ContractQuery<
+  StakingQueryAllStakedParams,
+  StakedNftState[]
+>;
+
+export interface StakingQueryByType {
+  config: StakingConfigQuery;
+  staked_by_addr: StakingStakedByAddrQuery;
+  staked_by_token: StakingStakedByTokenQuery;
+  all_staked: StakingAllStakedQuery;
+  num_staked: StakingNumStakedQuery;
+  total_rewards: StakingTotalRewardsQuery;
 }

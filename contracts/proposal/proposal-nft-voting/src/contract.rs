@@ -1,5 +1,6 @@
 use cosmwasm_std::{
-    attr, entry_point, to_binary, Binary, Deps, DepsMut, Env, MessageInfo, Response, StdResult,
+    attr, entry_point, to_binary, Binary, Decimal, Deps, DepsMut, Env, MessageInfo, Response,
+    StdResult,
 };
 use cw_storage_plus::U16Key;
 
@@ -19,17 +20,32 @@ pub fn instantiate(
     info: MessageInfo,
     msg: ProposalInstantiateMsg,
 ) -> Result<Response, ContractError> {
+    // Check config
+    if msg.config.quorum_fraction.lt(&Decimal::zero())
+        || msg.config.quorum_fraction.gt(&Decimal::one())
+    {
+        return Err(ContractError::InvalidConfig {});
+    }
+
+    if msg.config.options.is_empty() {
+        return Err(ContractError::InvalidConfig {});
+    }
+
     CONFIG.save(deps.storage, &msg.config)?;
     STATE.save(
         deps.storage,
         &ProposalState {
             creator: info.sender.to_string(),
+            proposer: msg.proposer.to_string(),
             is_revoked: false,
         },
     )?;
 
     // Initialize tally to 0's for given options
     for option in msg.config.options.iter() {
+        if TALLY.has(deps.storage, U16Key::from(option.id)) {
+            return Err(ContractError::InvalidConfig {});
+        }
         TALLY.save(deps.storage, U16Key::from(option.id), &0u16)?;
     }
 
@@ -110,16 +126,19 @@ pub fn execute_vote(
 
 pub fn execute_revoke(
     deps: DepsMut,
-    _env: Env,
+    env: Env,
     info: MessageInfo,
 ) -> Result<Response, ContractError> {
+    let mut state = STATE.load(deps.storage)?;
     let cfg = CONFIG.load(deps.storage)?;
 
-    if info.sender.as_str() != cfg.proposer.as_str() {
+    if info.sender.as_str() != state.proposer.as_str() {
         return Err(ContractError::Unauthorized {});
     }
+    if cfg.close_time < env.block.time.seconds() {
+        return Err(ContractError::Closed {});
+    }
 
-    let mut state = STATE.load(deps.storage)?;
     state.is_revoked = true;
     STATE.save(deps.storage, &state)?;
 
@@ -168,74 +187,4 @@ pub fn query_votes(deps: Deps, token_ids: Vec<String>) -> StdResult<VotesQueryRe
 #[cfg_attr(not(feature = "library"), entry_point)]
 pub fn migrate(_deps: DepsMut, _env: Env, _msg: MigrateMsg) -> StdResult<Response> {
     Ok(Response::default())
-}
-
-#[cfg(test)]
-mod tests {
-    use cosmwasm_std::testing::{mock_dependencies, mock_env, mock_info};
-
-    use galacticdao_nft_voting_protocol::proposal::{
-        ProposalConfig, ProposalInstantiateMsg, ProposalOption, ProposalOptionStatus,
-        ProposalState, ProposalStatusResponse,
-    };
-
-    use crate::contract::{instantiate, query_status};
-
-    #[test]
-    fn instantiate_and_query_status() {
-        let mut deps = mock_dependencies(&[]);
-
-        let nft_contract = "contract";
-        let proposal_uri = "proposal_uri";
-        let creator = "creator";
-        let proposer = "proposer";
-        let options = vec![
-            ProposalOption {
-                id: 0,
-                name: "0".to_string(),
-            },
-            ProposalOption {
-                id: 0,
-                name: "1".to_string(),
-            },
-        ];
-
-        // Instantiate contract
-        let instantiate_msg = ProposalInstantiateMsg {
-            config: ProposalConfig {
-                nft_contract: nft_contract.to_string(),
-                proposal_uri: proposal_uri.to_string(),
-                proposer: proposer.to_string(),
-                options: options.clone(),
-                close_time: 100,
-            },
-        };
-        let info = mock_info(&creator, &[]);
-        instantiate(deps.as_mut(), mock_env(), info, instantiate_msg).unwrap();
-
-        // Ensure expected initial state
-        let expected = ProposalStatusResponse {
-            state: ProposalState {
-                creator: creator.to_string(),
-                is_revoked: false,
-            },
-            config: ProposalConfig {
-                nft_contract: nft_contract.to_string(),
-                proposal_uri: proposal_uri.to_string(),
-                proposer: proposer.to_string(),
-                options: options.clone(),
-                close_time: 100,
-            },
-            tally: options
-                .iter()
-                .map(|option| ProposalOptionStatus {
-                    id: option.id,
-                    votes: 0,
-                })
-                .collect(),
-        };
-        assert_eq!(query_status(deps.as_ref()).unwrap(), expected);
-    }
-
-    // TODO: More testing
 }

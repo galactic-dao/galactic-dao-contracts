@@ -6,6 +6,9 @@ pub enum ContractError {
     #[error("{0}")]
     Std(#[from] StdError),
 
+    #[error("Invalid Config")]
+    InvalidConfig {},
+
     #[error("Unauthorized")]
     Unauthorized {},
 

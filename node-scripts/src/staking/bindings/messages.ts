@@ -1,7 +1,7 @@
 import {
   StakingCw20ExecuteSendParams,
   StakingExecuteParamsByType,
-  StakingQueryParamsByType,
+  StakingQueryByType,
 } from './models';
 
 export type StakingExecuteMsgType = keyof StakingExecuteParamsByType;
@@ -15,12 +15,12 @@ export function getStakingExecuteMsg<TMsgType extends StakingExecuteMsgType>(
   };
 }
 
-export type StakingQueryMsgType = keyof StakingQueryParamsByType;
+export type StakingQueryMsgType = keyof StakingQueryByType;
 
 export function getStakingQueryMsg<TMsgType extends StakingQueryMsgType>(
   type: TMsgType,
-  params: StakingQueryParamsByType[TMsgType]
-): Record<string, StakingQueryParamsByType[TMsgType]> {
+  params: StakingQueryByType[TMsgType]['query']
+): Record<string, StakingQueryByType[TMsgType]['query']> {
   return {
     [type]: params,
   };

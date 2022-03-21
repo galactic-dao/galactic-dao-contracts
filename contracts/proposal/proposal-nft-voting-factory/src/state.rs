@@ -6,3 +6,4 @@ use galacticdao_nft_voting_protocol::proposal_factory::{
 
 pub const CONFIG: Item<ProposalFactoryConfig> = Item::new("config");
 pub const STATE: Item<ProposalFactoryState> = Item::new("state");
+pub const PROPOSALS: Item<Vec<String>> = Item::new("proposals");
