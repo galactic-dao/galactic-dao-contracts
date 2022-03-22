@@ -2,7 +2,7 @@ import { Wallet } from '@terra-money/terra.js';
 import {
   Cw721InstantiateMessage,
   Cw721NumTokensResponse,
-} from '../../nft/bindings/types';
+} from '../../nft/bindings/models';
 import instantiateContract from '../../utils/instantiateContract';
 import queryContract from '../../utils/queryContract';
 import {

@@ -1,52 +1,23 @@
-import {
-  Cw721ExecuteMintMessage,
-  Cw721ExecuteSendNftMessage,
-  Cw721ExecuteTransferNftMessage,
-  Cw721QueryNftInfoMessage,
-  Cw721QueryTokensMessage,
-} from './types';
+import { Cw721ExecuteParamsByType, Cw721QueryByType } from './models';
 
-/*
-Execute
- */
-export function getCw721ExecuteMintMsg(params: Cw721ExecuteMintMessage) {
+export type Cw721ExecuteMsgType = keyof Cw721ExecuteParamsByType;
+
+export function getCw721ExecuteMsg<TMsgType extends Cw721ExecuteMsgType>(
+  type: TMsgType,
+  params: Cw721ExecuteParamsByType[TMsgType]
+): Record<string, Cw721ExecuteParamsByType[TMsgType]> {
   return {
-    mint: params,
+    [type]: params,
   };
 }
 
-export function getCw721ExecuteTransferMsg(
-  params: Cw721ExecuteTransferNftMessage
-) {
-  return {
-    transfer_nft: params,
-  };
-}
+export type Cw721QueryMsgType = keyof Cw721QueryByType;
 
-export function getCw721ExecuteSendNftMsg(params: Cw721ExecuteSendNftMessage) {
+export function getCw721QueryMsg<TMsgType extends Cw721QueryMsgType>(
+  type: TMsgType,
+  params: Cw721QueryByType[TMsgType]['query']
+): Record<string, Cw721QueryByType[TMsgType]['query']> {
   return {
-    send_nft: params,
-  };
-}
-
-/*
-Query
- */
-
-export function getCw721QueryNumTokensMsg() {
-  return {
-    num_tokens: {},
-  };
-}
-
-export function getCw721QueryTokensMsg(params: Cw721QueryTokensMessage) {
-  return {
-    tokens: params,
-  };
-}
-
-export function getCw721QueryNftInfoMsg(params: Cw721QueryNftInfoMessage) {
-  return {
-    nft_info: params,
+    [type]: params,
   };
 }

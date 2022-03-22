@@ -8,6 +8,7 @@
   "scripts": {
     "upload-contract": "ts-node src/common/scripts/uploadContractToChain.ts",
     "nft/query": "ts-node src/nft/scripts/queryNft.ts",
+    "nft/createGPNfts": "ts-node src/nft/scripts/createGPNfts.ts",
     "proposal/instantiate": "ts-node src/proposal/scripts/proposal/instantiateProposalContract.ts",
     "proposal/revoke": "ts-node src/proposal/scripts/proposal/revokeProposal.ts",
     "proposal/vote": "ts-node src/proposal/scripts/proposal/voteOnProposal.ts",
