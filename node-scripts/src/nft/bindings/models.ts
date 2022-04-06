@@ -84,14 +84,24 @@ type ContractQuery<TQueryParams, TQueryResp> = {
 };
 
 export interface Cw721QueryAllTokensParams {
+  start_after?: string;
+  limit?: number;
+}
+
+export interface Cw721QueryTokensParams {
   owner?: string;
   // Token ID to start after
   start_after?: string;
-  limit?: string;
+  limit?: number;
 }
 
-export type Cw721TokensQuery = ContractQuery<
+export type Cw721AllTokensQuery = ContractQuery<
   Cw721QueryAllTokensParams,
+  Cw721TokensResponse
+>;
+
+export type Cw721TokensQuery = ContractQuery<
+  Cw721QueryTokensParams,
   Cw721TokensResponse
 >;
 
@@ -105,6 +115,7 @@ export type Cw721NftInfoQuery = ContractQuery<
 >;
 
 export interface Cw721QueryByType {
-  all_tokens: Cw721TokensQuery;
+  tokens: Cw721TokensQuery;
+  all_tokens: Cw721AllTokensQuery;
   nft_info: Cw721NftInfoQuery;
 }

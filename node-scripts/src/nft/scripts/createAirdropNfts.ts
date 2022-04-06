@@ -1,7 +1,6 @@
 import {
   Cw721ExecuteMintParams,
   Cw721InstantiateParams,
-  NftMetadataExtension,
 } from '../bindings/models';
 import * as fs from 'fs';
 import * as path from 'path';
@@ -9,59 +8,34 @@ import { getWallet } from '../../utils/wallet';
 import instantiateContract from '../../utils/instantiateContract';
 import { cw721NftCodeIds } from '../constants';
 import { environment } from '../../utils/environment';
-import { chunk, range } from 'lodash';
+import { chunk } from 'lodash';
 import { getLogger } from '../../common/logger';
 import executeContract from '../../utils/executeContract';
 import { delay } from '../../utils/misc';
 import { getCw721ExecuteMsg } from '../bindings/messages';
 import { HolderData } from './types';
+import { getComicAirdropMetadata } from './metadata/airdropMetadata';
 
-// JSON files from 1-10921 for the GP punk metadata
-const METADATA_FOLDER = './assets/gp_metadata';
-// Snapshot of holders
-const HOLDERS_JSON_FILE = './holders/gp_holders.json';
+const HOLDERS_JSON_FILE = './holders/comic_holders.json';
+const NAME = 'The Galactic Punks Comic: Volume 1';
+const SYMBOL = 'GPC';
+const getMetadata = getComicAirdropMetadata;
 
-interface MetadataFileData {
-  token_id: string;
-  token_uri: string;
-  extension: NftMetadataExtension;
-}
+const logger = getLogger('createAirdropNfts');
 
-function getHolderDataByTokenId(): Record<string, HolderData> {
+async function main() {
+  const wallet = getWallet();
+
   const holders: HolderData[] = JSON.parse(
     fs.readFileSync(path.join(__dirname, HOLDERS_JSON_FILE)).toString()
   );
 
-  return holders.reduce((acc, holder) => {
-    const tokenId = holder.token_id;
-    acc[tokenId] = holder;
-    return acc;
-  }, {} as Record<string, HolderData>);
-}
-
-function getMetadata(punkNumber: number): MetadataFileData {
-  return JSON.parse(
-    fs
-      .readFileSync(path.join(__dirname, METADATA_FOLDER, `${punkNumber}.json`))
-      .toString()
-  );
-}
-
-const logger = getLogger('createGpNfts');
-
-/**
- * Creates a complete Galactic Punk CW721 NFT contract
- * - Extract `metadata/gp_metadata.zip` into `assets/`
- */
-async function main() {
-  const holdersByTokenId = getHolderDataByTokenId();
-  const wallet = getWallet();
-
   const cw721InitMessage: Cw721InstantiateParams = {
     minter: wallet.key.accAddress,
-    name: 'Galactic Punks',
-    symbol: 'GP',
+    name: NAME,
+    symbol: SYMBOL,
   };
+
   const nftContract = await instantiateContract({
     contractCodeId: cw721NftCodeIds[environment.chainType],
     initMessage: cw721InitMessage,
@@ -70,16 +44,16 @@ async function main() {
 
   logger.info('NFT contract address', nftContract);
 
-  for (const batchedPunkNums of chunk(range(1, 10922), 100)) {
+  for (const batchedHolders of chunk(holders, 100)) {
     // Use a longer delay to avoid hitting rate limits
     await delay(10);
 
-    const mintMessages = batchedPunkNums.map((punkNumber) => {
-      const metadata = getMetadata(punkNumber);
+    const mintMessages = batchedHolders.map((holderData) => {
+      const metadata = getMetadata(holderData.token_id);
       const mintMsgParams: Cw721ExecuteMintParams = {
         extension: metadata.extension,
-        owner: holdersByTokenId[metadata.token_id].user_addr,
-        token_id: metadata.token_id,
+        owner: holderData.user_addr,
+        token_id: holderData.token_id.toString(),
         token_uri: metadata.token_uri,
       };
 
@@ -95,8 +69,8 @@ async function main() {
     });
 
     logger.info(
-      'Minted batch starting with punk number: ',
-      batchedPunkNums[0],
+      'Minted batch starting with token ID: ',
+      batchedHolders[0].token_id,
       '| Tx Hash: ',
       tx.txhash
     );

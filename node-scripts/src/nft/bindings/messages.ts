@@ -21,3 +21,5 @@ export function getCw721QueryMsg<TMsgType extends Cw721QueryMsgType>(
     [type]: params,
   };
 }
+export type Cw721QueryResponse<T extends Cw721QueryMsgType> =
+  Cw721QueryByType[T]['response'];
