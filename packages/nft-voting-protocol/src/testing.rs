@@ -55,6 +55,7 @@ impl Querier for MockWasmQuerier {
     }
 }
 
+// TODO: Add support for mocking staking NFT ownership
 impl MockWasmQuerier {
     pub fn handle_query(&self, request: &QueryRequest<Empty>) -> QuerierResult {
         match &request {

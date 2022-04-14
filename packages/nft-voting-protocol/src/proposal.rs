@@ -24,8 +24,9 @@ pub struct ProposalOptionStatus {
 
 #[derive(Serialize, Deserialize, Clone, Debug, PartialEq, JsonSchema)]
 pub struct ProposalConfig {
-    /// The NFT contract associated with NFT voting
+    /// The NFT contracts associated with NFT voting
     pub nft_contract: String,
+    pub nft_staking_contract: String,
     /// Title for proposal
     pub title: String,
     /// A URI with details for the proposal

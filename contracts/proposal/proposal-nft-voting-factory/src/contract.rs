@@ -5,7 +5,7 @@ use cosmwasm_std::{
 use protobuf::Message;
 
 use galacticdao_nft_voting_protocol::asset::Asset;
-use galacticdao_nft_voting_protocol::cw721_querier::query_has_tokens;
+use galacticdao_nft_voting_protocol::nft_querier::query_has_tokens;
 use galacticdao_nft_voting_protocol::proposal::{
     ProposalConfig, ProposalInstantiateMsg, ProposalOption,
 };

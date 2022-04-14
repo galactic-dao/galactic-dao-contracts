@@ -15,15 +15,15 @@ const PROPOSAL_OPTIONS: ProposalOption[] = [
   },
   {
     id: 1,
-    name: 'Approve',
+    name: 'Yes',
   },
   {
     id: 2,
-    name: 'Reject',
+    name: 'No',
   },
 ];
 
-const CLOSE_TIME = Math.round(Date.parse('01 Apr 2022 00:00:00 GMT') / 1000);
+const CLOSE_TIME = Math.round(Date.parse('22 Apr 2022 00:00:00 GMT') / 1000);
 
 const logger = getLogger('instantiateProposalContract');
 
@@ -33,10 +33,12 @@ async function instantiateProposalContract() {
 
   const instantiateMsg: ProposalInstantiateParams = {
     config: {
-      // GP testnet contract
-      nft_contract: 'terra1pk646xtdgwym74k46cajttdu6uvypa5jw5wa3j',
-      title: 'Test Title',
-      proposal_uri: '',
+      // GP testnet contracts
+      nft_contract: 'terra1ka7r34ysylvnujtat9gjkydteny7f6g7xrk5ea',
+      nft_staking_contract: 'terra12edeeudxj0f5uyfgye098crhzy080hvjmw9vt7',
+      title: 'Refract 1000 LUNA & Stake yLUNA into PRISM Farm',
+      proposal_uri:
+        'ipfs://bafkreifdapicm7lg5us7twbl47kbqwsvu6zs52vzfrmoytazmx75u5ghmu',
       options: PROPOSAL_OPTIONS,
       quorum_fraction: '0.2',
       close_time: CLOSE_TIME,

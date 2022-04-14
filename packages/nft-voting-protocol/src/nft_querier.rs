@@ -1,6 +1,9 @@
 use cosmwasm_std::{QuerierWrapper, StdResult};
 use cw721::{Cw721QueryMsg, OwnerOfResponse, TokensResponse};
 
+use galacticdao_nft_staking_protocol::staking::{StakedNftState, StakingQueryMsg};
+
+// Query CW721
 pub fn query_token_owner(
     querier: &QuerierWrapper,
     contract_addr: &String,
@@ -17,6 +20,23 @@ pub fn query_token_owner(
     Ok(res.owner)
 }
 
+// Query Stake
+pub fn query_staked_token_owner(
+    querier: &QuerierWrapper,
+    contract_addr: &String,
+    token_id: &String,
+) -> StdResult<String> {
+    let res: Option<StakedNftState> = querier.query_wasm_smart(
+        contract_addr,
+        &StakingQueryMsg::StakedByToken {
+            token_id: token_id.clone(),
+        },
+    )?;
+
+    Ok(res.unwrap().stake.owner)
+}
+
+// Query CW721
 pub fn query_has_tokens(
     querier: &QuerierWrapper,
     contract_addr: &String,

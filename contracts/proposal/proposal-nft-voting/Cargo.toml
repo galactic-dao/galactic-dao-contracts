@@ -23,4 +23,4 @@ thiserror = { version = "1.0.26" }
 galacticdao-nft-voting-protocol = { version = "0.1.0", path = "../../../packages/nft-voting-protocol" }
 
 [dev-dependencies]
-cosmwasm-schema = { version = "1.0.0-beta" }
+cosmwasm-schema = { version = "0.16.6" }

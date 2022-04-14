@@ -4,7 +4,7 @@ use cosmwasm_std::{
 };
 use cw_storage_plus::U16Key;
 
-use galacticdao_nft_voting_protocol::cw721_querier::query_token_owner;
+use galacticdao_nft_voting_protocol::nft_querier::{query_staked_token_owner, query_token_owner};
 use galacticdao_nft_voting_protocol::proposal::{
     MigrateMsg, ProposalExecuteMsg, ProposalInstantiateMsg, ProposalOptionStatus, ProposalQueryMsg,
     ProposalState, ProposalStatusResponse, VotesQueryResponse,
@@ -85,7 +85,13 @@ pub fn execute_vote(
 
     // Check owner
     let token_owner = query_token_owner(&deps.querier, &cfg.nft_contract, token_id)?;
-    if token_owner.as_str() != info.sender.as_str() {
+    if token_owner == cfg.nft_staking_contract {
+        let staked_token_owner =
+            query_staked_token_owner(&deps.querier, &cfg.nft_contract, token_id)?;
+        if staked_token_owner != info.sender {
+            return Err(ContractError::Unauthorized {});
+        }
+    } else if token_owner.as_str() != info.sender.as_str() {
         return Err(ContractError::Unauthorized {});
     }
 

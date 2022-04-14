@@ -1,7 +1,7 @@
 pub mod asset;
-pub mod cw721_querier;
+pub mod nft_querier;
 pub mod proposal;
 pub mod proposal_factory;
 
-#[cfg(test)]
+#[cfg(not(target_arch = "wasm32"))]
 pub mod testing;

@@ -65,19 +65,9 @@ dependencies = [
 
 [[package]]
 name = "cosmwasm-schema"
-version = "0.16.2"
+version = "0.16.7"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "c04830bc186c970ea400c0ea56f8a61b19aea1aa8d2442b9f9f9de96a61f0bf0"
-dependencies = [
- "schemars",
- "serde_json",
-]
-
-[[package]]
-name = "cosmwasm-schema"
-version = "1.0.0-beta2"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "fe52b19d45fe3f8359db6cc24df44dbe05e5ae32539afc0f5b7f790a21aa6fd0"
+checksum = "b021bdefb9d855c5135e83046e5407a9fddba869e42e78b6036b53a606dc8c10"
 dependencies = [
  "schemars",
  "serde_json",
@@ -286,7 +276,7 @@ dependencies = [
 name = "galacticdao-nft-staking"
 version = "0.1.0"
 dependencies = [
- "cosmwasm-schema 0.16.2",
+ "cosmwasm-schema",
  "cosmwasm-std",
  "cosmwasm-storage",
  "cw-storage-plus",
@@ -303,7 +293,7 @@ dependencies = [
 name = "galacticdao-nft-staking-protocol"
 version = "0.1.0"
 dependencies = [
- "cosmwasm-schema 0.16.2",
+ "cosmwasm-schema",
  "cosmwasm-std",
  "cosmwasm-storage",
  "cw-storage-plus",
@@ -318,12 +308,13 @@ dependencies = [
 name = "galacticdao-nft-voting-protocol"
 version = "0.1.0"
 dependencies = [
- "cosmwasm-schema 0.16.2",
+ "cosmwasm-schema",
  "cosmwasm-std",
  "cosmwasm-storage",
  "cw-storage-plus",
  "cw20",
  "cw721",
+ "galacticdao-nft-staking-protocol",
  "schemars",
  "serde",
  "thiserror",
@@ -333,7 +324,7 @@ dependencies = [
 name = "galacticdao-proposal-nft-voting"
 version = "0.1.0"
 dependencies = [
- "cosmwasm-schema 1.0.0-beta2",
+ "cosmwasm-schema",
  "cosmwasm-std",
  "cosmwasm-storage",
  "cw-storage-plus",
@@ -347,7 +338,7 @@ dependencies = [
 name = "galacticdao-proposal-nft-voting-factory"
 version = "0.1.0"
 dependencies = [
- "cosmwasm-schema 0.16.2",
+ "cosmwasm-schema",
  "cosmwasm-std",
  "cosmwasm-storage",
  "cw-storage-plus",

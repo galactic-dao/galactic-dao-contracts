@@ -18,6 +18,7 @@ export interface ProposalOptionStatus {
 export interface ProposalConfig {
   title: string;
   nft_contract: string;
+  nft_staking_contract: string;
   proposal_uri: string;
   options: ProposalOption[];
   quorum_fraction: string;
