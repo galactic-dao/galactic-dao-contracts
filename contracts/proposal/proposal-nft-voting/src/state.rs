@@ -1,4 +1,4 @@
-use cw_storage_plus::{Item, Map, U16Key};
+use cw_storage_plus::{Item, Map};
 
 use galacticdao_nft_voting_protocol::proposal::{ProposalConfig, ProposalState};
 
@@ -9,4 +9,4 @@ pub const STATE: Item<ProposalState> = Item::new("state");
 pub const VOTE_BY_TOKEN_ID: Map<String, u16> = Map::new("vote_by_token_id");
 
 /// Map of option ID -> number of votes
-pub const TALLY: Map<U16Key, u16> = Map::new("tally");
+pub const TALLY: Map<u16, u16> = Map::new("tally");

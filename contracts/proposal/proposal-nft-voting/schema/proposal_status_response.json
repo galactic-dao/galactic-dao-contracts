@@ -1,0 +1,149 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "ProposalStatusResponse",
+  "type": "object",
+  "required": [
+    "config",
+    "state",
+    "tally"
+  ],
+  "properties": {
+    "config": {
+      "description": "Original configuration for the proposal",
+      "allOf": [
+        {
+          "$ref": "#/definitions/ProposalConfig"
+        }
+      ]
+    },
+    "state": {
+      "description": "Current state of the proposal",
+      "allOf": [
+        {
+          "$ref": "#/definitions/ProposalState"
+        }
+      ]
+    },
+    "tally": {
+      "description": "The current statuses for each option",
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/ProposalOptionStatus"
+      }
+    }
+  },
+  "definitions": {
+    "Decimal": {
+      "description": "A fixed-point decimal value with 18 fractional digits, i.e. Decimal(1_000_000_000_000_000_000) == 1.0\n\nThe greatest possible value that can be represented is 340282366920938463463.374607431768211455 (which is (2^128 - 1) / 10^18)",
+      "type": "string"
+    },
+    "ProposalConfig": {
+      "type": "object",
+      "required": [
+        "close_time",
+        "nft_contract",
+        "options",
+        "proposal_uri",
+        "quorum_fraction",
+        "title"
+      ],
+      "properties": {
+        "close_time": {
+          "description": "The time at which the proposal closes, in seconds",
+          "type": "integer",
+          "format": "uint64",
+          "minimum": 0.0
+        },
+        "nft_contract": {
+          "description": "The NFT contracts associated with NFT voting",
+          "type": "string"
+        },
+        "options": {
+          "description": "The allowed options for voting",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/ProposalOption"
+          }
+        },
+        "proposal_uri": {
+          "description": "A URI with details for the proposal",
+          "type": "string"
+        },
+        "quorum_fraction": {
+          "description": "Quorum in fractional form (<=1) - not used for any computation but for immutability",
+          "allOf": [
+            {
+              "$ref": "#/definitions/Decimal"
+            }
+          ]
+        },
+        "title": {
+          "description": "Title for proposal",
+          "type": "string"
+        }
+      }
+    },
+    "ProposalOption": {
+      "type": "object",
+      "required": [
+        "id",
+        "name"
+      ],
+      "properties": {
+        "id": {
+          "description": "ID of the option",
+          "type": "integer",
+          "format": "uint16",
+          "minimum": 0.0
+        },
+        "name": {
+          "description": "Display name",
+          "type": "string"
+        }
+      }
+    },
+    "ProposalOptionStatus": {
+      "type": "object",
+      "required": [
+        "id",
+        "votes"
+      ],
+      "properties": {
+        "id": {
+          "description": "ID of the option",
+          "type": "integer",
+          "format": "uint16",
+          "minimum": 0.0
+        },
+        "votes": {
+          "description": "Number of votes associated with the option",
+          "type": "integer",
+          "format": "uint16",
+          "minimum": 0.0
+        }
+      }
+    },
+    "ProposalState": {
+      "type": "object",
+      "required": [
+        "creator",
+        "is_revoked",
+        "proposer"
+      ],
+      "properties": {
+        "creator": {
+          "description": "Address of the factory contract that created this proposal",
+          "type": "string"
+        },
+        "is_revoked": {
+          "description": "Whether the proposal has been revoked by the proposer",
+          "type": "boolean"
+        },
+        "proposer": {
+          "description": "Address that initiated the proposal by calling the factory",
+          "type": "string"
+        }
+      }
+    }
+  }
+}

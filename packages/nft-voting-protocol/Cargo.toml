@@ -14,15 +14,14 @@ backtraces = ["cosmwasm-std/backtraces"]
 library = []
 
 [dependencies]
-cosmwasm-std = { version = "0.16.5" }
-cosmwasm-storage = { version = "0.16.5" }
-cw-storage-plus = { version = "0.9.1" }
-cw20 = "0.9.1"
-cw721 = "0.9.2"
-galacticdao-nft-staking-protocol = { version = "0.1.0", path = "../nft-staking-protocol" }
+cosmwasm-std = { version = "1.0.0" }
+cosmwasm-storage = { version = "1.0.0" }
+cw-storage-plus = { version = "0.14.0" }
+cw20 = "0.14.0"
+cw721 = "0.13.2"
 schemars = "0.8.3"
 serde = { version = "1.0.127", default-features = false, features = ["derive"] }
 thiserror = { version = "1.0.26" }
 
 [dev-dependencies]
-cosmwasm-schema = { version = "0.16.2" }
+cosmwasm-schema = { version = "1.0.0" }

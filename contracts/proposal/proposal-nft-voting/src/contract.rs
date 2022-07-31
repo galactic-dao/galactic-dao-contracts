@@ -2,9 +2,8 @@ use cosmwasm_std::{
     attr, entry_point, to_binary, Binary, Decimal, Deps, DepsMut, Env, MessageInfo, Response,
     StdResult,
 };
-use cw_storage_plus::U16Key;
 
-use galacticdao_nft_voting_protocol::nft_querier::{query_staked_token_owner, query_token_owner};
+use galacticdao_nft_voting_protocol::nft_querier::query_token_owner;
 use galacticdao_nft_voting_protocol::proposal::{
     MigrateMsg, ProposalExecuteMsg, ProposalInstantiateMsg, ProposalOptionStatus, ProposalQueryMsg,
     ProposalState, ProposalStatusResponse, VotesQueryResponse,
@@ -43,10 +42,10 @@ pub fn instantiate(
 
     // Initialize tally to 0's for given options
     for option in msg.config.options.iter() {
-        if TALLY.has(deps.storage, U16Key::from(option.id)) {
+        if TALLY.has(deps.storage, option.id) {
             return Err(ContractError::InvalidConfig {});
         }
-        TALLY.save(deps.storage, U16Key::from(option.id), &0u16)?;
+        TALLY.save(deps.storage, option.id, &0u16)?;
     }
 
     Ok(Response::new())
@@ -85,13 +84,7 @@ pub fn execute_vote(
 
     // Check owner
     let token_owner = query_token_owner(&deps.querier, &cfg.nft_contract, token_id)?;
-    if token_owner == cfg.nft_staking_contract {
-        let staked_token_owner =
-            query_staked_token_owner(&deps.querier, &cfg.nft_staking_contract, token_id)?;
-        if staked_token_owner != info.sender {
-            return Err(ContractError::Unauthorized {});
-        }
-    } else if token_owner.as_str() != info.sender.as_str() {
+    if token_owner.as_str() != info.sender.as_str() {
         return Err(ContractError::Unauthorized {});
     }
 
@@ -100,7 +93,7 @@ pub fn execute_vote(
     if let Some(voted_option_id) = existing_vote {
         TALLY.update(
             deps.storage,
-            U16Key::from(voted_option_id),
+            voted_option_id,
             |curr_tally| -> StdResult<_> { Ok(curr_tally.unwrap() - 1) },
         )?;
         VOTE_BY_TOKEN_ID.remove(deps.storage, token_id.to_string());
@@ -108,11 +101,9 @@ pub fn execute_vote(
 
     // Update to new vote
     if let Some(new_option_id) = option_id {
-        TALLY.update(
-            deps.storage,
-            U16Key::from(new_option_id),
-            |curr_tally| -> StdResult<_> { Ok(curr_tally.unwrap() + 1) },
-        )?;
+        TALLY.update(deps.storage, new_option_id, |curr_tally| -> StdResult<_> {
+            Ok(curr_tally.unwrap() + 1)
+        })?;
         VOTE_BY_TOKEN_ID.save(deps.storage, token_id.to_string(), &new_option_id)?;
     }
 
@@ -167,7 +158,7 @@ pub fn query_status(deps: Deps) -> StdResult<ProposalStatusResponse> {
         .iter()
         .map(|option| ProposalOptionStatus {
             id: option.id,
-            votes: TALLY.load(deps.storage, U16Key::from(option.id)).unwrap(),
+            votes: TALLY.load(deps.storage, option.id).unwrap(),
         })
         .collect();
 

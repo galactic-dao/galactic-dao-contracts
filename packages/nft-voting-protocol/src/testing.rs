@@ -19,6 +19,7 @@ pub fn mock_dependencies(
         storage: MockStorage::default(),
         api: MockApi::default(),
         querier: custom_querier,
+        custom_query_type: Default::default(),
     }
 }
 
@@ -55,7 +56,6 @@ impl Querier for MockWasmQuerier {
     }
 }
 
-// TODO: Add support for mocking staking NFT ownership
 impl MockWasmQuerier {
     pub fn handle_query(&self, request: &QueryRequest<Empty>) -> QuerierResult {
         match &request {

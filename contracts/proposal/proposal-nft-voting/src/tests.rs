@@ -16,7 +16,6 @@ mod tests {
     };
 
     const NFT_CONTRACT: &str = "nft_contract";
-    const NFT_STAKING_CONTRACT: &str = "nft_staking_contract";
     const PROPOSAL_URI: &str = "proposal_uri";
     const TITLE: &str = "title";
     const PROPOSAL_CREATOR: &str = "creator";
@@ -44,7 +43,6 @@ mod tests {
         let instantiate_msg = ProposalInstantiateMsg {
             config: ProposalConfig {
                 nft_contract: NFT_CONTRACT.to_string(),
-                nft_staking_contract: NFT_STAKING_CONTRACT.to_string(),
                 title: TITLE.to_string(),
                 proposal_uri: PROPOSAL_URI.to_string(),
                 options: options.clone(),
@@ -84,7 +82,6 @@ mod tests {
             },
             config: ProposalConfig {
                 nft_contract: NFT_CONTRACT.to_string(),
-                nft_staking_contract: NFT_STAKING_CONTRACT.to_string(),
                 title: TITLE.to_string(),
                 proposal_uri: PROPOSAL_URI.to_string(),
                 options: expected_options.clone(),

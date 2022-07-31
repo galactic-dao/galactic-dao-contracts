@@ -1,0 +1,48 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "ProposalExecuteMsg",
+  "oneOf": [
+    {
+      "description": "Casts a vote with the given token ID, if null, indicates a no-vote, revoking any existing votes",
+      "type": "object",
+      "required": [
+        "vote"
+      ],
+      "properties": {
+        "vote": {
+          "type": "object",
+          "required": [
+            "token_id"
+          ],
+          "properties": {
+            "option_id": {
+              "type": [
+                "integer",
+                "null"
+              ],
+              "format": "uint16",
+              "minimum": 0.0
+            },
+            "token_id": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    {
+      "description": "Revokes the proposal, can only be called by the proposer",
+      "type": "object",
+      "required": [
+        "revoke"
+      ],
+      "properties": {
+        "revoke": {
+          "type": "object"
+        }
+      },
+      "additionalProperties": false
+    }
+  ]
+}

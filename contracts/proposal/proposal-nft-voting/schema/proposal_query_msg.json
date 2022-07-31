@@ -1,0 +1,43 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "ProposalQueryMsg",
+  "oneOf": [
+    {
+      "description": "Retrieves general configuration & status for the proposal",
+      "type": "object",
+      "required": [
+        "status"
+      ],
+      "properties": {
+        "status": {
+          "type": "object"
+        }
+      },
+      "additionalProperties": false
+    },
+    {
+      "description": "Retrieves the current votes for the given token IDs",
+      "type": "object",
+      "required": [
+        "votes"
+      ],
+      "properties": {
+        "votes": {
+          "type": "object",
+          "required": [
+            "token_ids"
+          ],
+          "properties": {
+            "token_ids": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      },
+      "additionalProperties": false
+    }
+  ]
+}
