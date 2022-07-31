@@ -44,6 +44,10 @@ const executeContract = async ({
   const executeTx = await wallet.createAndSignTx({
     msgs: executeMessages,
     gasAdjustment: 1.2,
+    gasPrices: {
+      uluna: '6',
+      uusd: '0.15',
+    },
   });
 
   const executeTxResult = await wallet.lcd.tx.broadcast(executeTx);

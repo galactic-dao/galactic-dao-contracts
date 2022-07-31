@@ -87,7 +87,7 @@ pub fn execute_vote(
     let token_owner = query_token_owner(&deps.querier, &cfg.nft_contract, token_id)?;
     if token_owner == cfg.nft_staking_contract {
         let staked_token_owner =
-            query_staked_token_owner(&deps.querier, &cfg.nft_contract, token_id)?;
+            query_staked_token_owner(&deps.querier, &cfg.nft_staking_contract, token_id)?;
         if staked_token_owner != info.sender {
             return Err(ContractError::Unauthorized {});
         }
