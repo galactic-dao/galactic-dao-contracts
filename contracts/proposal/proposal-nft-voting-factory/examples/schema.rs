@@ -4,7 +4,10 @@ use std::fs::create_dir_all;
 use cosmwasm_schema::{export_schema, remove_schemas};
 use schemars::schema_for;
 
-use galacticdao_nft_voting_protocol::proposal_factory::ProposalFactoryState;
+use galacticdao_nft_voting_protocol::proposal_factory::{
+    ProposalFactoryExecuteMsg, ProposalFactoryInstantiateMsg, ProposalFactoryQueryMsg,
+    ProposalFactoryStatusResponse,
+};
 
 fn main() {
     let mut out_dir = current_dir().unwrap();
@@ -12,5 +15,8 @@ fn main() {
     create_dir_all(&out_dir).unwrap();
     remove_schemas(&out_dir).unwrap();
 
-    export_schema(&schema_for!(ProposalFactoryState), &out_dir);
+    export_schema(&schema_for!(ProposalFactoryInstantiateMsg), &out_dir);
+    export_schema(&schema_for!(ProposalFactoryExecuteMsg), &out_dir);
+    export_schema(&schema_for!(ProposalFactoryQueryMsg), &out_dir);
+    export_schema(&schema_for!(ProposalFactoryInstantiateMsg), &out_dir);
 }

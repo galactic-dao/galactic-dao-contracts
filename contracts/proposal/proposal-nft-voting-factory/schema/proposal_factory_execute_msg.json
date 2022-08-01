@@ -1,0 +1,231 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "ProposalFactoryExecuteMsg",
+  "oneOf": [
+    {
+      "description": "Creates a proposal with the given config",
+      "type": "object",
+      "required": [
+        "create_proposal"
+      ],
+      "properties": {
+        "create_proposal": {
+          "type": "object",
+          "required": [
+            "config"
+          ],
+          "properties": {
+            "config": {
+              "$ref": "#/definitions/ProposalConfig"
+            }
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    {
+      "description": "Updates the configuration with any specified items",
+      "type": "object",
+      "required": [
+        "modify_config"
+      ],
+      "properties": {
+        "modify_config": {
+          "type": "object",
+          "properties": {
+            "min_quorum_fraction": {
+              "anyOf": [
+                {
+                  "$ref": "#/definitions/Decimal"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "owner": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "proposal_code_id": {
+              "type": [
+                "integer",
+                "null"
+              ],
+              "format": "uint64",
+              "minimum": 0.0
+            },
+            "proposal_cost": {
+              "anyOf": [
+                {
+                  "$ref": "#/definitions/Asset"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    {
+      "description": "Withdraws funds within the contract to the owner",
+      "type": "object",
+      "required": [
+        "withdraw_funds"
+      ],
+      "properties": {
+        "withdraw_funds": {
+          "type": "object",
+          "required": [
+            "asset"
+          ],
+          "properties": {
+            "asset": {
+              "$ref": "#/definitions/Asset"
+            }
+          }
+        }
+      },
+      "additionalProperties": false
+    }
+  ],
+  "definitions": {
+    "Asset": {
+      "type": "object",
+      "required": [
+        "amount",
+        "info"
+      ],
+      "properties": {
+        "amount": {
+          "$ref": "#/definitions/Uint128"
+        },
+        "info": {
+          "$ref": "#/definitions/AssetInfo"
+        }
+      }
+    },
+    "AssetInfo": {
+      "oneOf": [
+        {
+          "type": "object",
+          "required": [
+            "token"
+          ],
+          "properties": {
+            "token": {
+              "type": "object",
+              "required": [
+                "contract_addr"
+              ],
+              "properties": {
+                "contract_addr": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "required": [
+            "native_token"
+          ],
+          "properties": {
+            "native_token": {
+              "type": "object",
+              "required": [
+                "denom"
+              ],
+              "properties": {
+                "denom": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "additionalProperties": false
+        }
+      ]
+    },
+    "Decimal": {
+      "description": "A fixed-point decimal value with 18 fractional digits, i.e. Decimal(1_000_000_000_000_000_000) == 1.0\n\nThe greatest possible value that can be represented is 340282366920938463463.374607431768211455 (which is (2^128 - 1) / 10^18)",
+      "type": "string"
+    },
+    "ProposalConfig": {
+      "type": "object",
+      "required": [
+        "close_time",
+        "nft_contract",
+        "options",
+        "proposal_uri",
+        "quorum_fraction",
+        "title"
+      ],
+      "properties": {
+        "close_time": {
+          "description": "The time at which the proposal closes, in seconds",
+          "type": "integer",
+          "format": "uint64",
+          "minimum": 0.0
+        },
+        "nft_contract": {
+          "description": "The NFT contracts associated with NFT voting",
+          "type": "string"
+        },
+        "options": {
+          "description": "The allowed options for voting",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/ProposalOption"
+          }
+        },
+        "proposal_uri": {
+          "description": "A URI with details for the proposal",
+          "type": "string"
+        },
+        "quorum_fraction": {
+          "description": "Quorum in fractional form (<=1) - not used for any computation but for immutability",
+          "allOf": [
+            {
+              "$ref": "#/definitions/Decimal"
+            }
+          ]
+        },
+        "title": {
+          "description": "Title for proposal",
+          "type": "string"
+        }
+      }
+    },
+    "ProposalOption": {
+      "type": "object",
+      "required": [
+        "id",
+        "name"
+      ],
+      "properties": {
+        "id": {
+          "description": "ID of the option",
+          "type": "integer",
+          "format": "uint16",
+          "minimum": 0.0
+        },
+        "name": {
+          "description": "Display name",
+          "type": "string"
+        }
+      }
+    },
+    "Uint128": {
+      "description": "A thin wrapper around u128 that is using strings for JSON encoding/decoding, such that the full u128 range can be used for clients that convert JSON numbers to floats, like JavaScript and jq.\n\n# Examples\n\nUse `from` to create instances of this and `u128` to get the value out:\n\n``` # use cosmwasm_std::Uint128; let a = Uint128::from(123u128); assert_eq!(a.u128(), 123);\n\nlet b = Uint128::from(42u64); assert_eq!(b.u128(), 42);\n\nlet c = Uint128::from(70u32); assert_eq!(c.u128(), 70); ```",
+      "type": "string"
+    }
+  }
+}
