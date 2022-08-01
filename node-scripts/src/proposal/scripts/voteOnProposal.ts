@@ -1,7 +1,7 @@
-import { getLogger } from '../../../common/logger';
-import executeContract from '../../../utils/executeContract';
-import { getWallet } from '../../../utils/wallet';
-import { getProposalExecuteMsg } from '../../bindings/proposal/messages';
+import { getLogger } from '../../common/logger';
+import executeContract from '../../utils/executeContract';
+import { getWallet } from '../../utils/wallet';
+import { ProposalExecuteMsg } from '../../bindings/ProposalContract';
 
 const logger = getLogger('voteOnProposal');
 
@@ -11,15 +11,18 @@ const OPTION_ID = 0;
 
 async function voteOnProposal() {
   const wallet = getWallet();
+  const executeMsg: ProposalExecuteMsg = {
+    vote: {
+      token_id: TOKEN_ID,
+      option_id: OPTION_ID,
+    },
+  };
 
   await executeContract({
     contractAddress: PROPOSAL_CONTRACT_ADDR,
     operations: [
       {
-        message: getProposalExecuteMsg('vote', {
-          token_id: TOKEN_ID,
-          option_id: OPTION_ID,
-        }),
+        message: executeMsg,
       },
     ],
     wallet,

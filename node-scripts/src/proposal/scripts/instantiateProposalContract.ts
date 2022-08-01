@@ -1,12 +1,12 @@
+import { getLogger } from '../../common/logger';
+import { getWallet } from '../../utils/wallet';
+import { nftProposalCodeIds } from '../constants';
+import { environment } from '../../utils/environment';
+import instantiateContract from '../../utils/instantiateContract';
 import {
-  ProposalInstantiateParams,
+  ProposalInstantiateMsg,
   ProposalOption,
-} from '../../bindings/proposal/models';
-import { getLogger } from '../../../common/logger';
-import { getWallet } from '../../../utils/wallet';
-import { nftProposalCodeIds } from '../../constants';
-import { environment } from '../../../utils/environment';
-import instantiateContract from '../../../utils/instantiateContract';
+} from '../../bindings/ProposalContract';
 
 const PROPOSAL_OPTIONS: ProposalOption[] = [
   {
@@ -35,7 +35,7 @@ async function instantiateProposalContract() {
   console.log('Start date', new Date().toISOString());
   console.log('Close date', new Date(CLOSE_TIME * 1000).toISOString());
 
-  const instantiateMsg: ProposalInstantiateParams = {
+  const instantiateMsg: ProposalInstantiateMsg = {
     config: {
       // GP testnet contracts
       // nft_contract: 'terra1pk646xtdgwym74k46cajttdu6uvypa5jw5wa3j',

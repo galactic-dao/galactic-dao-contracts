@@ -11,7 +11,6 @@ import {
 import { convertAmountToMicroDenom, delay } from '../../utils/misc';
 import { ProposalOption } from '../proposalTypes';
 import { Coins } from '@terra-money/terra.js/dist/core/Coins';
-import { getCreatedProposalAddress } from '../bindings/utils';
 import {
   executeCreateProposal,
   executeModifyProposalFactoryConfig,
@@ -25,6 +24,14 @@ import {
   queryProposalVotes,
 } from '../proposal';
 import { Numeric } from '@terra-money/terra.js';
+
+function getCreatedProposalAddress(
+  broadcastResult: BlockTxBroadcastResult
+): string {
+  return (broadcastResult.logs[0] as TxLog).eventsByType['instantiate'][
+    '_contract_address'
+  ][0];
+}
 
 function getSecondsSinceEpoch(): number {
   return Math.round(Date.now() / 1000);
