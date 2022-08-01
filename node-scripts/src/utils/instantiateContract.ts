@@ -7,13 +7,14 @@ import { Coins } from '@terra-money/terra.js/dist/core/Coins';
 import { getLogger } from '../common/logger';
 
 export type InstantiateContractVariables = {
+  label: string;
   contractCodeId: number;
   initMessage: Record<string, any>;
   wallet: Wallet;
   initCoins?: Coins.Input;
 };
 
-const logger = getLogger('instantiateContract');
+const logger = getLogger('instantiateContract', 'debug');
 
 /*
 Instantiates a contract with a given code ID, init message, and init coins
@@ -23,22 +24,20 @@ const instantiateContract = async ({
   initMessage,
   wallet,
   initCoins,
+  label,
 }: InstantiateContractVariables): Promise<string> => {
   const instantiate = new MsgInstantiateContract(
     wallet.key.accAddress,
     wallet.key.accAddress,
     contractCodeId, // code ID in number form
     initMessage,
-    initCoins
+    initCoins,
+    label
   );
 
   const instantiateTx = await wallet.createAndSignTx({
     msgs: [instantiate],
-    gasAdjustment: 1.5,
-    gasPrices: {
-      uluna: '6',
-      uusd: '0.15',
-    },
+    gasAdjustment: 1.2,
   });
   const instantiateTxResult = await wallet.lcd.tx.broadcast(instantiateTx);
 
@@ -51,10 +50,10 @@ const instantiateContract = async ({
   }
 
   const {
-    instantiate_contract: { contract_address },
+    instantiate: { _contract_address },
   } = instantiateTxResult.logs[0].eventsByType;
 
-  return contract_address[0];
+  return _contract_address[0];
 };
 
 export default instantiateContract;

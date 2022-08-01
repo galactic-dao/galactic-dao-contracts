@@ -129,7 +129,7 @@ pub fn execute_create_proposal(
             code_id: cfg.proposal_code_id,
             msg: to_binary(&instantiate_proposal_msg)?,
             funds: vec![],
-            label: "".to_string(),
+            label: "Galactic Punks Proposal".to_string(),
         }
         .into(),
         gas_limit: None,

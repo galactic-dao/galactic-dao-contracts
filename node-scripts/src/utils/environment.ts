@@ -1,7 +1,7 @@
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 require('dotenv').config();
 
-export type ChainType = 'MAINNET' | 'TESTNET' | 'LOCAL';
+export type ChainType = 'MAINNET' | 'MAINNET_CLASSIC' | 'TESTNET' | 'LOCAL';
 
 export type ChainTypeDependent<TValue> = {
   [chainType in ChainType]: TValue;

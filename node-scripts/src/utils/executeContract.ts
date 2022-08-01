@@ -1,6 +1,10 @@
 import { Coins } from '@terra-money/terra.js/dist/core/Coins';
-import { isTxError, MsgExecuteContract, Wallet } from '@terra-money/terra.js';
-import { BlockTxBroadcastResult } from '@terra-money/terra.js/dist/client/lcd/api/TxAPI';
+import {
+  isTxError,
+  MsgExecuteContract,
+  WaitTxBroadcastResult,
+  Wallet,
+} from '@terra-money/terra.js';
 import { getLogger } from '../common/logger';
 
 export type ExecuteContractOperation = {
@@ -23,7 +27,7 @@ const executeContract = async ({
   contractAddress,
   operations,
   wallet,
-}: ExecuteContractVariables): Promise<BlockTxBroadcastResult> => {
+}: ExecuteContractVariables): Promise<WaitTxBroadcastResult> => {
   logger.debug(
     'Execute contract with params',
     JSON.stringify({
@@ -44,10 +48,10 @@ const executeContract = async ({
   const executeTx = await wallet.createAndSignTx({
     msgs: executeMessages,
     gasAdjustment: 1.2,
-    gasPrices: {
-      uluna: '6',
-      uusd: '0.15',
-    },
+    // gasPrices: {
+    //   uluna: '6',
+    //   uusd: '0.15',
+    // },
   });
 
   const executeTxResult = await wallet.lcd.tx.broadcast(executeTx);
