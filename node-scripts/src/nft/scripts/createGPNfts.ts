@@ -1,33 +1,26 @@
-import {
-  Cw721ExecuteMintParams,
-  Cw721InstantiateParams,
-  NftMetadataExtension,
-} from '../bindings/models';
 import * as fs from 'fs';
 import * as path from 'path';
 import { getWallet } from '../../utils/wallet';
-import instantiateContract from '../../utils/instantiateContract';
-import { cw721NftCodeIds } from '../constants';
-import { environment } from '../../utils/environment';
 import { chunk, range } from 'lodash';
 import { getLogger } from '../../common/logger';
 import executeContract from '../../utils/executeContract';
 import { delay } from '../../utils/misc';
-import { getCw721ExecuteMsg } from '../bindings/messages';
 import { HolderData } from './types';
+import { CW721ExecuteMsg, Metadata } from '../../bindings/CW721Contract';
 
 // JSON files from 1-10921 for the GP punk metadata
-const METADATA_FOLDER = './assets/gp_metadata';
+const METADATA_FOLDER = '../assets/gp_metadata';
 // Snapshot of holders
 const HOLDERS_JSON_FILE = './holders/gp_holders.json';
 
 interface MetadataFileData {
   token_id: string;
+  classic_token_id: string;
   token_uri: string;
-  extension: NftMetadataExtension;
+  extension: Metadata;
 }
 
-function getHolderDataByTokenId(): Record<string, HolderData> {
+function getHolderDataByClassicTokenId(): Record<string, HolderData> {
   const holders: HolderData[] = JSON.parse(
     fs.readFileSync(path.join(__dirname, HOLDERS_JSON_FILE)).toString()
   );
@@ -49,15 +42,23 @@ function getMetadata(punkNumber: number): MetadataFileData {
 
 const logger = getLogger('createGpNfts');
 
+// Used to continue minting in case of failure
+const startAtPunkNum = -1;
+
 /**
  * Creates a complete Galactic Punk CW721 NFT contract
  * - Extract `metadata/gp_metadata.zip` into `assets/`
  */
 async function main() {
-  const holdersByTokenId = getHolderDataByTokenId();
+  const holdersByTokenId = getHolderDataByClassicTokenId();
   const wallet = getWallet();
 
-  const cw721InitMessage: Cw721InstantiateParams = {
+  // Dont do this on mainnet
+  if (wallet.lcd.config.chainID !== 'pisco-1') {
+    throw Error('Are you on the right network?');
+  }
+
+  const cw721InitMessage: CW721InstantiateMsg = {
     minter: wallet.key.accAddress,
     name: 'Galactic Punks',
     symbol: 'GP',
@@ -66,24 +67,34 @@ async function main() {
     contractCodeId: cw721NftCodeIds[environment.chainType],
     initMessage: cw721InitMessage,
     wallet,
+    label: 'Galactic Punks NFT',
   });
 
   logger.info('NFT contract address', nftContract);
 
-  for (const batchedPunkNums of chunk(range(1, 10922), 100)) {
+  for (const batchedPunkNums of chunk(range(1, 10922), 200)) {
+    if (batchedPunkNums[0] < startAtPunkNum) {
+      continue;
+    }
+
     // Use a longer delay to avoid hitting rate limits
     await delay(10);
 
-    const mintMessages = batchedPunkNums.map((punkNumber) => {
+    // Only mint half of the punks on V2
+    const filteredPunkNums = batchedPunkNums.filter(() => Math.random() > 0.5);
+
+    const mintMessages = filteredPunkNums.map((punkNumber) => {
       const metadata = getMetadata(punkNumber);
-      const mintMsgParams: Cw721ExecuteMintParams = {
-        extension: metadata.extension,
-        owner: holdersByTokenId[metadata.token_id].user_addr,
-        token_id: metadata.token_id,
-        token_uri: metadata.token_uri,
+      const mintMsg: CW721ExecuteMsg = {
+        mint: {
+          extension: metadata.extension,
+          owner: holdersByTokenId[metadata.classic_token_id].user_addr,
+          token_id: metadata.token_id, // Uses V2 token ID
+          token_uri: metadata.token_uri,
+        },
       };
 
-      return getCw721ExecuteMsg('mint', mintMsgParams);
+      return mintMsg;
     });
 
     const tx = await executeContract({
