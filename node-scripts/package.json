@@ -10,6 +10,7 @@
     "nft/query": "ts-node src/nft/scripts/queryNft.ts",
     "nft/createGPNfts": "ts-node src/nft/scripts/createGPNfts.ts",
     "nft/createAirdropNfts": "ts-node src/nft/scripts/createAirdropNfts.ts",
+    "nft/playground": "ts-node src/nft/scripts/playground.ts",
     "proposal/instantiate": "ts-node src/proposal/scripts/instantiateProposalContract.ts",
     "proposal/revoke": "ts-node src/proposal/scripts/revokeProposal.ts",
     "proposal/vote": "ts-node src/proposal/scripts/voteOnProposal.ts",

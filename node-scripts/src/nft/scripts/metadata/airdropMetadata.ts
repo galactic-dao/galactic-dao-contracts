@@ -1,8 +1,6 @@
-import { Cw721NftInfoResponse } from '../../bindings/models';
+import { NftInfoResponse } from '../../../bindings/CW721Contract';
 
-export function getPortraitAirdropMetadata(
-  tokenId: string
-): Cw721NftInfoResponse {
+export function getPortraitAirdropMetadata(tokenId: string): NftInfoResponse {
   return {
     token_uri:
       'ipfs://bafybeibxqt3hfce4phwzoixkj4kyxxit2wkznsylcim6pwlntq4frd3rri',
@@ -22,7 +20,7 @@ export function getPortraitAirdropMetadata(
   };
 }
 
-export function getComicAirdropMetadata(tokenId: string): Cw721NftInfoResponse {
+export function getComicAirdropMetadata(tokenId: string): NftInfoResponse {
   return {
     token_uri:
       'ipfs://bafybeiaiqqzbe2fvv5n54fvaux2uox3t34ekedurbqaulelv3ewvhagnui/gp_comic_vol1.pdf',
@@ -42,9 +40,7 @@ export function getComicAirdropMetadata(tokenId: string): Cw721NftInfoResponse {
   };
 }
 
-export function getGlitchAirdropMetadata(
-  tokenId: string
-): Cw721NftInfoResponse {
+export function getGlitchAirdropMetadata(tokenId: string): NftInfoResponse {
   return {
     token_uri:
       'ipfs://bafybeiawqw4rr2fg7oavwjiirpzxaybcaw4ats3uvcfswl2c3n2hrqfy54',
