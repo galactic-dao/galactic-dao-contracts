@@ -7,7 +7,7 @@ const relPathsForContracts = {
   proposal: '../../../../artifacts/galacticdao_proposal_nft_voting.wasm',
 };
 
-const fp = path.join(__dirname, relPathsForContracts.cw721);
+const fp = path.join(__dirname, relPathsForContracts.proposal);
 const wallet = getWallet();
 
 uploadContract(fp, wallet).then((codeId) => {

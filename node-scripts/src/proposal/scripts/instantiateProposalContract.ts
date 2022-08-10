@@ -38,11 +38,13 @@ async function instantiateProposalContract() {
   const instantiateMsg: ProposalInstantiateMsg = {
     config: {
       // GP testnet contracts
-      // nft_contract: 'terra1pk646xtdgwym74k46cajttdu6uvypa5jw5wa3j',
+      nft_contract:
+        'terra1c0dnkxd0urua9rfn7yn60ktedgqrl9zlnlvuwxpq7ykjtygyjgyq35kr2p',
       // GP mainnet contracts
-      nft_contract: 'terra103z9cnqm8psy0nyxqtugg6m7xnwvlkqdzm4s4k',
+      // nft_contract: 'terra16ds898j530kn4nnlc7xlj6hcxzqpcxxk4mj8gkcl3vswksu6s3zszs8kp2',
       title: 'TEST PROPOSAL',
-      proposal_uri: 'ipfs://hello_world',
+      proposal_uri:
+        'ipfs://bafkreihm3zutqqvjrh2g5n4bxri3l6ptso65s5hvx64ytyg5lrnb2fkbxq',
       options: PROPOSAL_OPTIONS,
       quorum_fraction: '0.05',
       close_time: CLOSE_TIME,

@@ -6,7 +6,14 @@ import { getLogger } from '../../common/logger';
 import executeContract from '../../utils/executeContract';
 import { delay } from '../../utils/misc';
 import { HolderData } from './types';
-import { CW721ExecuteMsg, Metadata } from '../../bindings/CW721Contract';
+import {
+  CW721ExecuteMsg,
+  CW721InstantiateMsg,
+  Metadata,
+} from '../../bindings/CW721Contract';
+import { cw721NftCodeIds } from '../constants';
+import instantiateContract from '../../utils/instantiateContract';
+import { environment } from '../../utils/environment';
 
 // JSON files from 1-10921 for the GP punk metadata
 const METADATA_FOLDER = '../assets/gp_metadata';
